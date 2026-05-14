@@ -1,4 +1,8 @@
-# alyx
+# alyx-core
+
+Alyx Core is the core repository for Alyx. It contains `alyx-core`, `alyx-ir`, and `alyx-plan`.
+
+For details about Alyx project, see [Alyx Overview](docs/alyx-overview.md).
 
 ## License
 
