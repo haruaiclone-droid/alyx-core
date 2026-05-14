@@ -1,8 +1,8 @@
 [workspace]
 members = [
-    "alyx-compiler",
-    "alyx-ir",
-    "alyx-plan",
+    "crates/alyx-compiler",
+    "crates/alyx-ir",
+    "crates/alyx-plan",
 ]
 resolver = "2"
 
