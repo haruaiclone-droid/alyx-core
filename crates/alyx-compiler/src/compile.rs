@@ -1,53 +1,54 @@
 use alyx_ir::{IrNode, Rect, Size};
 use alyx_plan::{EventType, RenderingPlan, ResolvedHitArea, RpImage, RpNode, RpText};
 
+use crate::CompilerOutput;
 use crate::context::CompileContext;
 use crate::layout::compile_container;
-use crate::CompilerOutput;
 
 pub fn compile<Msg>(root: &IrNode<Msg>, viewport: Size) -> CompilerOutput<Msg>
 where
     Msg: Clone + Send,
 {
     let mut context = CompileContext::new();
-    let node = compile_node(root, 0.0, 0.0, viewport, &mut context);
+    let nodes = compile_to_rp(root, 0.0, 0.0, viewport, &mut context);
 
     CompilerOutput {
-        rp: RenderingPlan { nodes: vec![node] },
+        rp: RenderingPlan { nodes },
         ep: context.ep,
         handlers: context.handlers,
     }
 }
 
-pub(crate) fn compile_node<Msg>(
+pub(crate) fn compile_to_rp<Msg>(
     node: &IrNode<Msg>,
     x: f32,
     y: f32,
     available: Size,
     context: &mut CompileContext<Msg>,
-) -> RpNode
+) -> Vec<RpNode>
 where
     Msg: Clone + Send,
 {
+    let mut rp_nodes = Vec::new();
     match node {
         IrNode::Container(container) => {
-            RpNode::Container(compile_container(container, x, y, available, context))
+            rp_nodes.extend(compile_container(container, x, y, available, context));
         }
-        IrNode::Text(text) => RpNode::Text(RpText {
+        IrNode::Text(text) => rp_nodes.push(RpNode::Text(RpText {
             x,
             y,
             width: text.size.width,
             height: text.size.height,
             content: text.content.clone(),
             style: text.style.clone(),
-        }),
-        IrNode::Image(image) => RpNode::Image(RpImage {
+        })),
+        IrNode::Image(image) => rp_nodes.push(RpNode::Image(RpImage {
             x,
             y,
             width: image.style.size.width,
             height: image.style.size.height,
             src: image.src.clone(),
-        }),
+        })),
         IrNode::HitArea(hit_area) => {
             if let Some(msg) = hit_area.on_click.clone() {
                 let handler_id = context.handlers.insert(msg);
@@ -67,9 +68,12 @@ where
                 });
             }
 
-            compile_node(&hit_area.child, x, y, available, context)
+            rp_nodes.extend(compile_to_rp(&hit_area.child, x, y, available, context));
         }
+        IrNode::Pane(_) => {}
     }
+
+    rp_nodes
 }
 
 fn resolve_rect(rect: Rect, parent_x: f32, parent_y: f32) -> Rect {
