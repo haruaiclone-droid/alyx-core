@@ -7,18 +7,8 @@ pub struct RenderingPlan {
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum RpNode {
-    Container(RpContainer),
     Text(RpText),
     Image(RpImage),
-}
-
-#[derive(Clone, Debug, PartialEq)]
-pub struct RpContainer {
-    pub x: f32,
-    pub y: f32,
-    pub width: f32,
-    pub height: f32,
-    pub children: Vec<RpNode>,
 }
 
 #[derive(Clone, Debug, PartialEq)]

@@ -3,7 +3,7 @@ use alyx_ir::{
     Align, Color, Container, FlexDirection, FlexLayout, Font, HitArea, Image, ImageSource,
     ImageStyle, IrNode, Justify, Layout, Padding, Rect, Size, Text, TextStyle,
 };
-use alyx_plan::{EventType, RpNode};
+use alyx_plan::{EventType, RpNode, RpText};
 use std::path::PathBuf;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -87,13 +87,12 @@ fn resolves_column_flex_positions_with_gap() {
         },
     );
 
-    let RpNode::Container(container) = &output.rp.nodes[0] else {
-        panic!("expected container node");
-    };
-    let RpNode::Text(first) = &container.children[0] else {
+    assert_eq!(output.rp.nodes.len(), 2);
+
+    let RpNode::Text(first) = &output.rp.nodes[0] else {
         panic!("expected first text node");
     };
-    let RpNode::Text(second) = &container.children[1] else {
+    let RpNode::Text(second) = &output.rp.nodes[1] else {
         panic!("expected second text node");
     };
 
@@ -131,13 +130,12 @@ fn resolves_row_flex_positions_with_gap() {
         },
     );
 
-    let RpNode::Container(container) = &output.rp.nodes[0] else {
-        panic!("expected container node");
-    };
-    let RpNode::Text(first) = &container.children[0] else {
+    assert_eq!(output.rp.nodes.len(), 2);
+
+    let RpNode::Text(first) = &output.rp.nodes[0] else {
         panic!("expected first text node");
     };
-    let RpNode::Text(second) = &container.children[1] else {
+    let RpNode::Text(second) = &output.rp.nodes[1] else {
         panic!("expected second text node");
     };
 
@@ -176,6 +174,12 @@ fn resolves_hit_area_and_handler_table() {
 
     assert_eq!(output.ep.hit_areas.len(), 2);
     assert_eq!(output.handlers.len(), 2);
+    assert_eq!(output.rp.nodes.len(), 1);
+
+    let RpNode::Text(RpText { x, y, .. }) = &output.rp.nodes[0] else {
+        panic!("expected text node");
+    };
+    assert_eq!((*x, *y), (0.0, 0.0));
 
     let click_area = &output.ep.hit_areas[0];
     let hover_area = &output.ep.hit_areas[1];

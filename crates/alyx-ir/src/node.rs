@@ -6,6 +6,7 @@ pub enum IrNode<Msg> {
     Text(Text),
     Image(Image),
     HitArea(HitArea<Msg>),
+    Pane(Pane),
 }
 
 impl<Msg> IrNode<Msg> {
@@ -15,6 +16,7 @@ impl<Msg> IrNode<Msg> {
             Self::Text(text) => text.size,
             Self::Image(image) => image.style.size,
             Self::HitArea(hit_area) => hit_area.child.size(),
+            Self::Pane(pane) => pane.size(),
         }
     }
 }
@@ -47,6 +49,11 @@ pub struct HitArea<Msg> {
     pub on_hover: Option<Msg>,
 }
 
+#[derive(Clone, Debug, PartialEq)]
+pub struct Pane {
+    pub rect: Rect,
+}
+
 impl<Msg> Container<Msg> {
     pub fn new(children: Vec<IrNode<Msg>>, layout: Layout, size: Size) -> Self {
         Self {
@@ -69,6 +76,15 @@ impl<Msg> HitArea<Msg> {
             child: Box::new(child),
             on_click,
             on_hover,
+        }
+    }
+}
+
+impl Pane {
+    pub fn size(&self) -> Size {
+        Size {
+            width: self.rect.width,
+            height: self.rect.height,
         }
     }
 }
