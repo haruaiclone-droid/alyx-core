@@ -11,6 +11,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "alyx-core"
+version = "0.1.0"
+dependencies = [
+ "alyx-compiler",
+ "alyx-ir",
+ "alyx-plan",
+]
+
+[[package]]
 name = "alyx-ir"
 version = "0.1.0"
 

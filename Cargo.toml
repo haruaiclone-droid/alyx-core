@@ -1,6 +1,7 @@
 [workspace]
 members = [
-    "crates/alyx-compiler",
+    "crates/alyx-compiler", 
+    "crates/alyx-core",
     "crates/alyx-ir",
     "crates/alyx-plan",
 ]
