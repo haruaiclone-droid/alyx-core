@@ -3,6 +3,7 @@ name = "alyx-plan"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
+repository.workspace = true
 
 [dependencies]
 alyx-ir = { path = "../alyx-ir" }
