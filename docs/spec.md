@@ -273,18 +273,9 @@ struct RenderingPlan {
 }
 
 enum RpNode {
-    Container(RpContainer),
     Text(RpText),
     Image(RpImage),
     Video(RpVideo),
-}
-
-struct RpContainer {
-    x: f32,
-    y: f32,
-    width: f32,
-    height: f32,
-    children: Vec<RpNode>,
 }
 
 struct RpText {
