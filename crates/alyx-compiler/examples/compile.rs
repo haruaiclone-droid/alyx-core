@@ -1,5 +1,8 @@
 use alyx_compiler::compile;
-use alyx_ir::{Color, Font, HitArea, IrNode, Rect, Size, Text, TextStyle};
+use alyx_ir::{
+    Align, Color, FlexLayout, Font, HitArea, IrNode, Justify, Layout, Padding, Size, Text,
+    TextStyle,
+};
 
 #[derive(Clone, Debug)]
 pub enum Message {
@@ -8,12 +11,18 @@ pub enum Message {
 
 fn main() {
     let node: IrNode<Message> = IrNode::HitArea(HitArea {
-        rect: Rect {
-            x: 0.0,
-            y: 0.0,
-            width: 100.0,
-            height: 200.0,
-        },
+        layout: Layout::Flex(FlexLayout {
+            direction: alyx_ir::FlexDirection::Column,
+            gap: 0.0,
+            padding: Padding {
+                left: 8.0,
+                right: 8.0,
+                top: 4.0,
+                bottom: 4.0,
+            },
+            align: Align::Start,
+            justify: Justify::Start,
+        }),
         on_click: Some(Message::OnClick),
         on_hover: None,
         child: Box::new(IrNode::Text(Text {

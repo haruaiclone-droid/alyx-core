@@ -73,10 +73,6 @@ fn resolves_column_flex_positions_with_gap() {
             align: Align::Start,
             justify: Justify::Start,
         }),
-        Size {
-            width: 100.0,
-            height: 100.0,
-        },
     ));
 
     let output = compile(
@@ -116,10 +112,6 @@ fn resolves_row_flex_positions_with_gap() {
             align: Align::Start,
             justify: Justify::Start,
         }),
-        Size {
-            width: 100.0,
-            height: 100.0,
-        },
     ));
 
     let output = compile(
@@ -147,21 +139,23 @@ fn resolves_row_flex_positions_with_gap() {
 fn resolves_hit_area_and_handler_table() {
     let root = IrNode::Container(Container::new(
         vec![IrNode::HitArea(HitArea::new(
-            Rect {
-                x: 1.0,
-                y: 2.0,
-                width: 50.0,
-                height: 20.0,
-            },
+            Layout::Flex(FlexLayout {
+                direction: FlexDirection::Column,
+                gap: 0.0,
+                padding: Padding {
+                    left: 1.0,
+                    top: 2.0,
+                    right: 3.0,
+                    bottom: 4.0,
+                },
+                align: Align::Start,
+                justify: Justify::Start,
+            }),
             text("button", 50.0, 20.0),
             Some(Msg::Click),
             Some(Msg::Hover),
         ))],
         Layout::Flex(FlexLayout::column()),
-        Size {
-            width: 100.0,
-            height: 100.0,
-        },
     ));
 
     let output = compile(
@@ -179,7 +173,7 @@ fn resolves_hit_area_and_handler_table() {
     let RpNode::Text(RpText { x, y, .. }) = &output.rp.nodes[0] else {
         panic!("expected text node");
     };
-    assert_eq!((*x, *y), (0.0, 0.0));
+    assert_eq!((*x, *y), (1.0, 2.0));
 
     let click_area = &output.ep.hit_areas[0];
     let hover_area = &output.ep.hit_areas[1];
@@ -189,10 +183,10 @@ fn resolves_hit_area_and_handler_table() {
     assert_eq!(
         click_area.rect,
         Rect {
-            x: 1.0,
-            y: 2.0,
-            width: 50.0,
-            height: 20.0
+            x: 0.0,
+            y: 0.0,
+            width: 54.0,
+            height: 26.0
         }
     );
     assert_eq!(
@@ -203,6 +197,60 @@ fn resolves_hit_area_and_handler_table() {
         output.handlers.get(hover_area.handler_id),
         Some(&Msg::Hover)
     );
+}
+
+#[test]
+fn resolves_container_size_from_children() {
+    let nested = IrNode::Container(Container::new(
+        vec![text("a", 20.0, 10.0), text("b", 30.0, 15.0)],
+        Layout::Flex(FlexLayout {
+            direction: FlexDirection::Column,
+            gap: 5.0,
+            padding: Padding {
+                left: 4.0,
+                top: 6.0,
+                right: 3.0,
+                bottom: 2.0,
+            },
+            align: Align::Start,
+            justify: Justify::Start,
+        }),
+    ));
+
+    let root = IrNode::Container(Container::new(
+        vec![nested, text("c", 10.0, 5.0)],
+        Layout::Flex(FlexLayout {
+            direction: FlexDirection::Row,
+            gap: 8.0,
+            padding: Padding::default(),
+            align: Align::Start,
+            justify: Justify::Start,
+        }),
+    ));
+
+    let output = compile(
+        &root,
+        Size {
+            width: 800.0,
+            height: 600.0,
+        },
+    );
+
+    assert_eq!(output.rp.nodes.len(), 3);
+
+    let RpNode::Text(first) = &output.rp.nodes[0] else {
+        panic!("expected first text node");
+    };
+    let RpNode::Text(second) = &output.rp.nodes[1] else {
+        panic!("expected second text node");
+    };
+    let RpNode::Text(third) = &output.rp.nodes[2] else {
+        panic!("expected third text node");
+    };
+
+    assert_eq!((first.x, first.y), (4.0, 6.0));
+    assert_eq!((second.x, second.y), (4.0, 21.0));
+    assert_eq!((third.x, third.y), (45.0, 0.0));
 }
 
 #[test]
