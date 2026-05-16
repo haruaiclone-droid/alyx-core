@@ -87,7 +87,7 @@ struct Video {
 
 ```rust
 struct HitArea<Msg> {
-    shape: Shape,
+    layout: Layout,
     child: Box<IrNode<Msg>>,
     on_click: Option<Msg>,
     on_hover: Option<Msg>,
@@ -95,6 +95,7 @@ struct HitArea<Msg> {
 ```
 
 複数の子が必要な場合は `Container` で包んで `child` に渡す。
+ヒット領域のサイズは `child` のサイズに `layout` の padding を加えて解決する。
 
 ### 共通型
 
@@ -108,6 +109,7 @@ enum Layout {
 struct FlexLayout {
     direction: FlexDirection,
     gap: f32,
+    padding: Padding,
     align: Align,
     justify: Justify,
 }
