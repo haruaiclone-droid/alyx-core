@@ -50,10 +50,18 @@ where
             src: image.src.clone(),
         })),
         IrNode::HitArea(hit_area) => {
+            let size = hit_area.size();
+            let rect = Rect {
+                x,
+                y,
+                width: size.width,
+                height: size.height,
+            };
+
             if let Some(msg) = hit_area.on_click.clone() {
                 let handler_id = context.handlers.insert(msg);
                 context.ep.hit_areas.push(ResolvedHitArea {
-                    rect: resolve_rect(hit_area.rect, x, y),
+                    rect,
                     handler_id,
                     event_type: EventType::Click,
                 });
@@ -62,25 +70,23 @@ where
             if let Some(msg) = hit_area.on_hover.clone() {
                 let handler_id = context.handlers.insert(msg);
                 context.ep.hit_areas.push(ResolvedHitArea {
-                    rect: resolve_rect(hit_area.rect, x, y),
+                    rect,
                     handler_id,
                     event_type: EventType::Hover,
                 });
             }
 
-            rp_nodes.extend(compile_to_rp(&hit_area.child, x, y, available, context));
+            let (child_x, child_y) = hit_area.child_origin(x, y);
+            rp_nodes.extend(compile_to_rp(
+                &hit_area.child,
+                child_x,
+                child_y,
+                available,
+                context,
+            ));
         }
         IrNode::Pane(_) => {}
     }
 
     rp_nodes
-}
-
-fn resolve_rect(rect: Rect, parent_x: f32, parent_y: f32) -> Rect {
-    Rect {
-        x: parent_x + rect.x,
-        y: parent_y + rect.y,
-        width: rect.width,
-        height: rect.height,
-    }
 }
