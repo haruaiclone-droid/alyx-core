@@ -1,0 +1,21 @@
+[33m0990ace[m[33m ([m[1;36mHEAD -> [m[1;32mfeature/resolve-coordinates-from-children[m[33m)[m refactor: moe CompilerOutput from alyx-compiler to alyx-plan
+[33m039d97d[m[33m ([m[1;31morigin/feature/resolve-coordinates-from-children[m[33m)[m feature: coordinates of Container and HitArea are resolved from children
+[33m191205a[m docs: update spec.md
+[33mf03585a[m[33m ([m[1;32mmain[m[33m)[m docs: fix Apache-2.0 license text and add copyright notice
+[33m505b037[m Merge pull request #2 from naoshinn/feature/implement-alyx-core
+[33m4a497d5[m[33m ([m[1;31morigin/feature/implement-alyx-core[m[33m)[m feature: add alyx-core/
+[33mca513a5[m refactor: make Pane public
+[33m9987353[m Merge pull request #1 from naoshinn/feature/add-pane-for-empty-regions
+[33m01ea214[m feature: add pane and flatten RpNode
+[33m15ae57f[m docs: update spec.md
+[33mddd0bea[m chore: add the repository link
+[33m1e744a0[m docs: update README.md
+[33meea15a6[m docs: move to docs/
+[33m71d854d[m docs: update README and add spec.md and alyx-overview.md
+[33md3208b4[m chore: update Rust edition to 2024
+[33m1ff092a[m refactor: move to folder crates/
+[33m80388af[m refactor: organize Alyx Core crates under crates/
+[33m3d65cfa[m Delete LICENSE
+[33m0909eea[m docs: Organize license information
+[33m3ab175b[m initial commit
+[33m34f3665[m initial commit

@@ -1,7 +1,8 @@
 use alyx_ir::{IrNode, Rect, Size};
-use alyx_plan::{EventType, RenderingPlan, ResolvedHitArea, RpImage, RpNode, RpText};
+use alyx_plan::{
+    CompilerOutput, EventType, RenderingPlan, ResolvedHitArea, RpImage, RpNode, RpText,
+};
 
-use crate::CompilerOutput;
 use crate::context::CompileContext;
 use crate::layout::compile_container;
 
