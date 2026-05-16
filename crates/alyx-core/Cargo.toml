@@ -1,0 +1,11 @@
+[package]
+name = "alyx-core"
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+version.workspace = true
+
+[dependencies]
+alyx-compiler ={ path = "../alyx-compiler/" }
+alyx-ir = { path = "../alyx-ir" }
+alyx-plan = { path = "../alyx-plan" }
