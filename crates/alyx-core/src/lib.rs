@@ -15,7 +15,7 @@ pub mod prelude {
     pub use crate::ir::*;
 }
 
-mod executor {
+pub mod executor {
     #[allow(dead_code)]
     pub trait RenderPlanExecutor {
         fn run(&self);
