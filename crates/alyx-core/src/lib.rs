@@ -14,3 +14,15 @@ pub mod prelude {
     pub use crate::compiler::compile;
     pub use crate::ir::*;
 }
+
+mod executor {
+    #[allow(dead_code)]
+    pub trait RenderPlanExecutor {
+        fn run(&self);
+    }
+
+    #[allow(dead_code)]
+    pub trait EventPlanExecutor {
+        fn run(&self);
+    }
+}
