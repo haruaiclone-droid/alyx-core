@@ -1,8 +1,24 @@
 # alyx-core
 
-Alyx Core is the core repository for Alyx. It contains `alyx-core`, `alyx-ir`, and `alyx-plan`.
+Alyx Core is the core repository for Alyx. It contains `alyx-compiler`, `alyx-core`, `alyx-ir`, and `alyx-plan`.
 
 For details about Alyx project, see [Alyx Overview](docs/alyx-overview.md).
+
+## Architecture
+
+This architecture is recommended, but not required. All developers may use any development approach they prefer, such as creating tools that directly convert User Code into Alyx IR.
+
+User Code
+ ↓
+Alyx Widgets
+ ↓
+Alyx IR
+ ↓ Converted by compiler
+Alyx Plans (RP / EP)
+ ↓
+Alyx Executor
+
+Also, runtime owns 
 
 ## License
 
