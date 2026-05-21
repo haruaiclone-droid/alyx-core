@@ -19,6 +19,24 @@ However, Alyx does not treat maximum performance as the only goal of UI architec
 
 Alyx is based on the idea that these elements should be separated into independent layers. Each layer should be understandable on its own, developed independently, and replaceable without forcing the rest of the system to be rewritten.
 
+## Layer Responsibilities
+
+Alyx divides UI development into these layers:
+
+- **Syntax**
+
+Almost all developers write this layer.
+
+- **Widgets**
+
+- **IR**
+
+- **RP / EP**
+
+- **Executor**
+
+- **Runtime**
+
 ## Design Principles
 
   1. **Layer-independent**: Alyx separates syntax (how UI is written), widgets, UI IR, compiler, renderers, event handlers, and runtime. Each layer can be replaced, extended, or developed independently.
