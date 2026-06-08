@@ -119,3 +119,22 @@
 - Verification:
   - `cargo test -p alyx-cli`
   - `cargo run --package alyx-cli -- build-web <tmp_dir>` (manual spot-check)
+
+### 10. Normalize button creation in examples and tests to builder API
+- Status: [x]
+- Files:
+  - `examples/form.rs`
+  - `examples/image.rs`
+  - `crates/alyx-core/examples/nested_layout.rs`
+  - `crates/alyx-core/tests/phase_integration.rs`
+  - `crates/alyx-native/examples/native.rs`
+  - `crates/alyx-native/examples/native_pixels.rs`
+  - `crates/alyx-native/examples/native_wgpu.rs`
+- Completion criteria:
+  - Replaced button construction is using `button("label").on_click(msg)` (or equivalent helper use) in updated sample code.
+  - No `ButtonWidget::text(..., ...)` remains in these target files.
+  - No additional behavior change beyond API usage shape.
+- Verification:
+  - `rg -n "ButtonWidget::text" examples crates/alyx-core/examples crates/alyx-native/examples crates/alyx-core/tests`
+  - `cargo test -p alyx-core --test phase_integration`
+  - `cargo check --workspace --examples`

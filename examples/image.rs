@@ -47,7 +47,7 @@ impl App for ImageDemo {
                         .size(128.0, 64.0),
                 ),
                 Widget::Link(LinkWidget::new("open website", "https://example.com", None)),
-                Widget::Button(ButtonWidget::text("reset", Msg::Reset)),
+                button("reset").on_click(Msg::Reset),
             ],
             layout: Layout::Flex(FlexLayout {
                 direction: FlexDirection::Column,
@@ -60,3 +60,4 @@ impl App for ImageDemo {
         .into_ir()
     }
 }
+

@@ -8,7 +8,7 @@ use alyx_core::{
     runtime::App,
     web::{export_static_html, supports_aria},
     widgets::{
-        ButtonWidget, CheckboxWidget, ContainerWidget, IntoIr, LinkWidget, TextInputWidget,
+        button, CheckboxWidget, ContainerWidget, IntoIr, LinkWidget, TextInputWidget,
         TextWidget, Widget,
     },
 };
@@ -42,7 +42,7 @@ fn demo_view(state: &DemoState) -> IrNode<DemoMsg> {
     Widget::Container(ContainerWidget {
         children: vec![
             Widget::Text(TextWidget::new("Phase integration").size(220.0, 20.0)),
-            Widget::Button(ButtonWidget::text("submit", DemoMsg::ButtonClick)),
+            button("submit").on_click(DemoMsg::ButtonClick),
             Widget::Checkbox(CheckboxWidget::new(
                 format!("Terms {terms}"),
                 state.checked,
@@ -304,3 +304,4 @@ fn supports_aria_summary_matches_visibility() {
     assert!(all_roles.contains(&&Role::Button));
     assert!(all_roles.contains(&&Role::InputText));
 }
+

@@ -5,7 +5,7 @@ use alyx_native::{NativeEvent, NativeEventState, NativeSceneExport};
 #[cfg(feature = "wgpu-backend")]
 use alyx_runtime::{App, Command, HeadlessRuntime};
 #[cfg(feature = "wgpu-backend")]
-use alyx_widgets::{ButtonWidget, ContainerWidget, IntoIr, TextWidget, Widget};
+use alyx_widgets::{button, ContainerWidget, IntoIr, TextWidget, Widget};
 #[cfg(feature = "wgpu-backend")]
 use wgpu::{Device, Queue, Surface, SurfaceError};
 #[cfg(feature = "wgpu-backend")]
@@ -59,8 +59,8 @@ impl App for NativeWgpuApp {
         Widget::Container(
             ContainerWidget::column(vec![
                 Widget::Text(TextWidget::new(format!("native wgpu: {state}")).size(220.0, 24.0)),
-                Widget::Button(ButtonWidget::text("pulse", Msg::Pulse)),
-                Widget::Button(ButtonWidget::text("scroll", Msg::Scroll)),
+                button("pulse").on_click(Msg::Pulse),
+                button("scroll").on_click(Msg::Scroll),
             ])
             .gap(8.0)
             .with_padding(12.0, 12.0, 12.0, 12.0),
@@ -430,3 +430,5 @@ fn main() {
         "Run with: cargo run --package alyx-native --example native_wgpu --features wgpu-backend"
     );
 }
+
+

@@ -52,8 +52,8 @@ impl App for NestedLayoutApp {
         let nested_sidebar = Widget::Container(
             ContainerWidget::column(vec![
                 Widget::Text(TextWidget::new("sidebar").size(64.0, 20.0)),
-                Widget::Button(ButtonWidget::text("inc", Msg::Inc)),
-                Widget::Button(ButtonWidget::text("dec", Msg::Dec)),
+                button("inc").on_click(Msg::Inc),
+                button("dec").on_click(Msg::Dec),
                 Widget::Spacer {
                     width: 0.0,
                     height: 6.0,
@@ -95,3 +95,4 @@ impl App for NestedLayoutApp {
         .into_ir()
     }
 }
+

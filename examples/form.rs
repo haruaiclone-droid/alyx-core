@@ -73,7 +73,7 @@ impl App for FormApp {
                     width: 0.0,
                     height: 8.0,
                 },
-                Widget::Button(ButtonWidget::text("submit", Msg::Submit)),
+                button("submit").on_click(Msg::Submit),
             ],
             layout: Layout::Flex(FlexLayout {
                 direction: FlexDirection::Column,
@@ -86,3 +86,4 @@ impl App for FormApp {
         .into_ir()
     }
 }
+

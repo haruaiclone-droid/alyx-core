@@ -9,7 +9,7 @@ use alyx_plan::{RenderingPlan, RpNode};
 #[cfg(feature = "pixels-backend")]
 use alyx_runtime::{App, Command, HeadlessRuntime};
 #[cfg(feature = "pixels-backend")]
-use alyx_widgets::{ButtonWidget, ContainerWidget, IntoIr, TextWidget, Widget};
+use alyx_widgets::{button, ContainerWidget, IntoIr, TextWidget, Widget};
 #[cfg(feature = "pixels-backend")]
 use pixels::{Error, Pixels, SurfaceTexture};
 #[cfg(feature = "pixels-backend")]
@@ -63,8 +63,8 @@ impl App for NativePixelsApp {
         Widget::Container(
             ContainerWidget::column(vec![
                 Widget::Text(TextWidget::new(format!("native pixels: {state}")).size(220.0, 24.0)),
-                Widget::Button(ButtonWidget::text("pulse", Msg::Pulse)),
-                Widget::Button(ButtonWidget::text("scroll", Msg::Scroll)),
+                button("pulse").on_click(Msg::Pulse),
+                button("scroll").on_click(Msg::Scroll),
             ])
             .gap(8.0)
             .with_padding(12.0, 12.0, 12.0, 12.0),
@@ -387,3 +387,5 @@ fn main() {
         "Run with: cargo run --package alyx-native --example native_pixels --features pixels-backend"
     );
 }
+
+

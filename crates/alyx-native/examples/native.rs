@@ -7,7 +7,7 @@ use alyx_native::{WinitEventLoop, pump_native_events};
 #[cfg(feature = "winit-backend")]
 use alyx_runtime::{App, Command, HeadlessRuntime};
 #[cfg(feature = "winit-backend")]
-use alyx_widgets::{ButtonWidget, ContainerWidget, IntoIr, TextWidget, Widget};
+use alyx_widgets::{button, ContainerWidget, IntoIr, TextWidget, Widget};
 #[cfg(feature = "winit-backend")]
 use std::time::Duration;
 
@@ -46,7 +46,7 @@ impl App for NativeDemoApp {
         Widget::Container(
             ContainerWidget::column(vec![
                 Widget::Text(TextWidget::new(format!("native ticks: {state}")).size(220.0, 24.0)),
-                Widget::Button(ButtonWidget::text("pulse", Msg::Pulse)),
+                button("pulse").on_click(Msg::Pulse),
             ])
             .gap(10.0)
             .with_padding(12.0, 12.0, 12.0, 12.0),
@@ -86,3 +86,5 @@ fn main() {
         "Run with: cargo run --package alyx-native --example native --features winit-backend"
     );
 }
+
+
