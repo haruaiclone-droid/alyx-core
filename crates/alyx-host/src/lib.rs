@@ -224,14 +224,7 @@ where
                 alyx_plan::EventType::KeyUp => {
                     if let (Some(node), Some(element)) = (runtime_event.node, runtime_event.element)
                     {
-                        runtime.dispatch_pointer_event_with_ids(
-                            runtime_event.x,
-                            runtime_event.y,
-                            alyx_plan::EventType::KeyUp,
-                            Some(node),
-                            Some(element),
-                            renderer,
-                        )
+                        runtime.dispatch_keyup_by_ids(node, element, renderer)
                     } else {
                         runtime.dispatch_keyup(runtime_event.x, runtime_event.y, renderer)
                     }

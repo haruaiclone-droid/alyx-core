@@ -114,7 +114,17 @@
     - Native renderer completeness roadmap
     - CI smoke reliability hardening
 
-### 9. Local verification command confirmation
+### 9. Fix host runtime key-up dispatch routing
+- Status: [x]
+- Files:
+  - `crates/alyx-host/src/lib.rs`
+- Completion criteria:
+  - `serve_one_runtime` now routes `EventType::KeyUp` with valid `(node, element)` IDs through `dispatch_keyup_by_ids`.
+  - The coordinate fallback to `dispatch_keyup` remains for ID-less keyboard events.
+- Verification:
+  - Manual code review of the `EventType::KeyUp` branch in `crates/alyx-host/src/lib.rs` in this fix commit.
+
+### 10. Local verification command confirmation
 - Status: [ ]
 - Files:
   - `N/A (environment checks)`

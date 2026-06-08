@@ -59,10 +59,9 @@ The attached request asks for a phased, end-to-end Alyx implementation:
 
 ### Verification posture (workspace)
 
-- Command-based verification is available locally using `C:\\Users\\ai\\.cargo\\bin\\cargo.exe`, with
-  the GNU/MinGW linker toolchain in `C:\\Ruby34-x64\\msys64\\ucrt64\\bin`.
-- Workspace-wide `test`, `build`, `fmt`, `clippy`, `doc`, `wasm`, and CLI smoke commands have been executed successfully after this setup.
-- Known environment constraints on this host remain around PATH defaults and Windows-native toolchain discovery.
+- Command-based verification is planned for this workspace, but `cargo` is not available in this environment (`cargo` command is not in PATH).
+- As a result, workspace-wide verification (`test`, `build`, `fmt`, `clippy`, `doc`, `wasm`, and CLI smoke commands) remains pending.
+- Known environment constraints on this host remain around toolchain availability and PATH defaults.
 - The CI `smoke` job now includes an HTTP smoke for `alyx-cli serve` (`/` and `/index.html`), but this still requires a working Rust toolchain to execute.
 
 ## Completion matrix draft (for single PR scope)
