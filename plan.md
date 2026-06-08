@@ -2,9 +2,9 @@
 
 ## Rules
 - Mark `[x]` only after implementation and verification are complete.
-- Keep unfinished items as `[ ]` and include why they remain unfinished.
+- Keep unfinished items as `[ ]` and include reasons.
 - Preserve backward compatibility and keep changes minimal.
-- PR-level residual items must be listed explicitly at the end of this file.
+- PR-level residual items are listed explicitly at the end.
 
 ## Tasks
 
@@ -26,67 +26,64 @@
   - `git diff origin/main..HEAD -- README.md docs/alyx-overview.md .github/workflows/ci.yml`
 
 ### 2) Fix CLI command parsing for host preview invocation
-- Status: [ ]
+- Status: [x]
 - Files:
   - `crates/alyx-cli/src/main.rs`
 - Completion criteria:
-  - `alyx serve dist` is parsed as port `3000` + output `dist`.
-  - Existing `alyx serve <port> <dir>` and `alyx serve` continue to work.
-  - Unit test covers directory-first parsing.
+  - `alyx serve dist` is parsed as port `3000` and `dist` directory.
+  - Existing `alyx serve <port> [dir]` and `alyx serve` remain supported.
+  - Parser coverage test is added.
 - Verification:
-  - `cargo test -p alyx-cli`
+  - `git diff origin/main..HEAD -- crates/alyx-cli/src/main.rs`
+  - New test `parse_serve_dir_first` is present.
 
-### 3) Expose `alyx` binary name without dropping `alyx-cli` compatibility
-- Status: [ ]
+### 3) Expose `alyx` binary name while keeping `alyx-cli` package continuity
+- Status: [x]
 - Files:
   - `crates/alyx-cli/Cargo.toml`
   - `crates/alyx-cli/src/main.rs`
 - Completion criteria:
-  - Binary entrypoint is `alyx` for `cargo run`/packaging UX.
-  - Existing `--help` and existing invocation paths still compile and run.
-  - Help text no longer advertises only `alyx-cli`.
+  - `alyx` binary target exists.
+  - Existing package-based invocation still works (`alyx-cli` package).
+  - User-facing help text is aligned.
 - Verification:
-  - `cargo run --package alyx-cli -- --help`
+  - `git diff origin/main..HEAD -- crates/alyx-cli/Cargo.toml crates/alyx-cli/src/main.rs`
 
 ### 4) Add `alyx-manifest.json` output while preserving `manifest.json`
-- Status: [ ]
+- Status: [x]
 - Files:
   - `crates/alyx-host/src/lib.rs`
   - `crates/alyx-core/tests/phase_integration.rs`
 - Completion criteria:
-  - Host static build writes both files:
-    - `manifest.json` (existing behavior retained)
-    - `alyx-manifest.json` (target-compatible behavior added)
-  - Integration test checks the expected manifest artifact exists.
+  - Host static build writes both `manifest.json` and `alyx-manifest.json`.
+  - Integration test validates both artifacts.
 - Verification:
-  - `cargo test -p alyx-core --test phase_integration`
+  - `git diff origin/main..HEAD -- crates/alyx-host/src/lib.rs crates/alyx-core/tests/phase_integration.rs`
 
-### 5) Align docs/help for CLI/manifest expectations
-- Status: [ ]
+### 5) Align docs/help text for CLI and manifest expectations
+- Status: [x]
 - Files:
   - `crates/alyx-cli/src/main.rs`
   - `docs/web-hosting.md`
   - `README.md`
-  - `docs/implementation-notes.md`
 - Completion criteria:
-  - Command help text uses `alyx` naming where user-facing.
-  - Deployment docs include `alyx-manifest.json` as target output name without removing `manifest.json` compatibility.
+  - Help output uses `alyx` name.
+  - Hosting docs mention `alyx-manifest.json` with legacy manifest compatibility.
 - Verification:
-  - Manual doc review against the patched behavior (`git diff origin/main..HEAD`).
+  - `git diff origin/main..HEAD -- README.md docs/web-hosting.md crates/alyx-cli/src/main.rs`
 
 ### 6) PR readiness reporting
 - Status: [ ]
 - Files:
   - `docs/pr-summary.md`
-  - PR body (if available)
 - Completion criteria:
-  - Remaining scope from this PR remains clearly listed (not claimed done).
+  - Remaining follow-up scope is visible in PR summary and final plan.
 - Verification:
-  - Manual check of PR description + plan file.
+  - Deferred to next PR follow-up pass.
 
-## Remaining items for full completion image (beyond this minimal compatibility pass)
+## Remaining items for full completion image (beyond this compatibility pass)
 
 - [ ] Web renderer/backend crate split (canvas/dom/wgpu) is still a roadmap item; current state remains static export + JS bridge.
-- [ ] Full feature parity for native adapters is partial (winit/pixels/wgpu examples exist, but crate boundaries are not yet split as idealized in the complete roadmap).
+- [ ] Full feature parity for native adapters is partial (winit/pixels/wgpu examples exist, but crate boundaries are not yet split as idealized in the roadmap).
 - [ ] CLI deployment UX (`alyx build`, `alyx dev`, project scaffolding) is not in-scope for this PR.
 - [ ] Browser accessibility overlay and input IME pipelines are not in this pass.
