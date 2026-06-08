@@ -3,7 +3,7 @@ use alyx_ir::{
     Align, Color, Container, FlexDirection, FlexLayout, Font, HitArea, Image, ImageSource,
     ImageStyle, IrNode, Justify, Layout, Padding, Rect, Size, Text, TextStyle,
 };
-use alyx_plan::{EventType, RpNode, RpText};
+use alyx_plan::{EventType, NavigationAction, RpNode, RpText};
 use std::path::PathBuf;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -200,6 +200,42 @@ fn resolves_hit_area_and_handler_table() {
 }
 
 #[test]
+fn disabled_hit_area_skips_event_handlers() {
+    let root = IrNode::Container(Container::new(
+        vec![IrNode::HitArea(
+            HitArea::new(
+                Layout::Flex(FlexLayout::row()),
+                text("disabled", 64.0, 18.0),
+                Some(Msg::Click),
+                None,
+            )
+            .disabled(true),
+        )],
+        Layout::Flex(FlexLayout::column()),
+    ));
+
+    let output = compile(
+        &root,
+        Size {
+            width: 100.0,
+            height: 40.0,
+        },
+    );
+
+    assert_eq!(output.ep.hit_areas.len(), 0);
+    assert_eq!(output.handlers.len(), 0);
+    assert_eq!(output.rp.nodes.len(), 1);
+    assert!(
+        output
+            .rp
+            .accessibility
+            .entries
+            .iter()
+            .any(|entry| entry.metadata.disabled)
+    );
+}
+
+#[test]
 fn resolves_container_size_from_children() {
     let nested = IrNode::Container(Container::new(
         vec![text("a", 20.0, 10.0), text("b", 30.0, 15.0)],
@@ -280,4 +316,117 @@ fn compiles_image_source_as_data() {
     assert_eq!(image.width, 32.0);
     assert_eq!(image.height, 24.0);
     assert_eq!(image.src, ImageSource::Path(PathBuf::from("logo.png")));
+}
+
+#[test]
+fn compiles_accessibility_plan_entries_for_hit_areas() {
+    let root = IrNode::<Msg>::Container(Container::new(
+        vec![
+            IrNode::HitArea(
+                HitArea::new(
+                    Layout::Flex(FlexLayout::row()),
+                    text("button", 64.0, 18.0),
+                    Some(Msg::Click),
+                    Some(Msg::Hover),
+                )
+                .pointer_down(Msg::Click)
+                .pointer_up(Msg::Click)
+                .submit(Msg::Click),
+            ),
+            IrNode::Text(Text {
+                content: "plain".to_string(),
+                style: TextStyle {
+                    font: Font {
+                        family: "Sans".to_string(),
+                    },
+                    size: 13.0,
+                    color: Color {
+                        r: 0.0,
+                        g: 0.0,
+                        b: 0.0,
+                        a: 1.0,
+                    },
+                },
+                size: Size {
+                    width: 30.0,
+                    height: 10.0,
+                },
+            }),
+        ],
+        Layout::Flex(FlexLayout {
+            direction: FlexDirection::Column,
+            gap: 6.0,
+            padding: Padding::default(),
+            align: Align::Start,
+            justify: Justify::Start,
+        }),
+    ));
+
+    let output = compile(
+        &root,
+        Size {
+            width: 220.0,
+            height: 80.0,
+        },
+    );
+
+    assert!(output.rp.accessibility.entries.len() >= 3);
+    assert!(output.rp.accessibility.entries.iter().any(|entry| {
+        entry.metadata == alyx_ir::AccessibilityMetadata::new()
+            && entry.rect
+                == Rect {
+                    x: 0.0,
+                    y: 0.0,
+                    width: 64.0,
+                    height: 18.0,
+                }
+    }));
+}
+
+#[test]
+fn compiles_link_navigation_plan() {
+    let root = IrNode::HitArea(
+        HitArea::new(
+            Layout::Flex(FlexLayout::row()),
+            IrNode::Text(Text {
+                content: "docs".to_string(),
+                style: TextStyle {
+                    font: Font {
+                        family: "Sans".to_string(),
+                    },
+                    size: 14.0,
+                    color: Color {
+                        r: 0.0,
+                        g: 0.0,
+                        b: 0.0,
+                        a: 1.0,
+                    },
+                },
+                size: Size {
+                    width: 40.0,
+                    height: 12.0,
+                },
+            }),
+            Some(Msg::Click),
+            None,
+        )
+        .navigate_to("/guide"),
+    );
+
+    let output = compile(
+        &root,
+        Size {
+            width: 100.0,
+            height: 40.0,
+        },
+    );
+
+    assert!(
+        output
+            .ep
+            .navigation
+            .actions
+            .contains(&NavigationAction::NavigateTo("/guide".to_string()))
+    );
+    assert_eq!(output.ep.hit_areas.len(), 1);
 }

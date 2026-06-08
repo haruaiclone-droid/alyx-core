@@ -1,0 +1,9 @@
+[package]
+name = "alyx-cli"
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+version.workspace = true
+
+[dependencies]
+alyx-core = { path = "../alyx-core" }

@@ -1,0 +1,10 @@
+[package]
+name = "alyx-executor"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+alyx-plan = { path = "../alyx-plan" }
+

@@ -4,6 +4,13 @@ members = [
     "crates/alyx-core",
     "crates/alyx-ir",
     "crates/alyx-plan",
+    "crates/alyx-widgets",
+    "crates/alyx-executor",
+    "crates/alyx-runtime",
+    "crates/alyx-web",
+    "crates/alyx-host",
+    "crates/alyx-native",
+    "crates/alyx-cli",
 ]
 resolver = "2"
 

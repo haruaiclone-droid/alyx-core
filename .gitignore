@@ -1,2 +1,5 @@
 target/
 docs/ja/spec.md
+dist/
+/.tmp-serve.log
+/.tmp-serve.err

@@ -1,17 +1,13 @@
 [package]
-name = "alyx-core"
+name = "alyx-runtime"
+version.workspace = true
 edition.workspace = true
 license.workspace = true
 repository.workspace = true
-version.workspace = true
 
 [dependencies]
 alyx-compiler = { path = "../alyx-compiler" }
 alyx-executor = { path = "../alyx-executor" }
-alyx-host = { path = "../alyx-host" }
-alyx-native = { path = "../alyx-native" }
-alyx-runtime = { path = "../alyx-runtime" }
-alyx-widgets = { path = "../alyx-widgets" }
-alyx-web = { path = "../alyx-web" }
 alyx-ir = { path = "../alyx-ir" }
 alyx-plan = { path = "../alyx-plan" }
+

@@ -10,8 +10,8 @@ pub enum Message {
 }
 
 fn main() {
-    let node: IrNode<Message> = IrNode::HitArea(HitArea {
-        layout: Layout::Flex(FlexLayout {
+    let node: IrNode<Message> = IrNode::HitArea(HitArea::new(
+        Layout::Flex(FlexLayout {
             direction: alyx_ir::FlexDirection::Column,
             gap: 0.0,
             padding: Padding {
@@ -23,9 +23,7 @@ fn main() {
             align: Align::Start,
             justify: Justify::Start,
         }),
-        on_click: Some(Message::OnClick),
-        on_hover: None,
-        child: Box::new(IrNode::Text(Text {
+        IrNode::Text(Text {
             content: "hello".to_string(),
             style: TextStyle {
                 font: Font {
@@ -43,8 +41,10 @@ fn main() {
                 width: 100.0,
                 height: 50.0,
             },
-        })),
-    });
+        }),
+        Some(Message::OnClick),
+        None,
+    ));
 
     let result = compile(
         &node,

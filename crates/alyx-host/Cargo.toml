@@ -1,0 +1,13 @@
+[package]
+name = "alyx-host"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+alyx-plan = { path = "../alyx-plan" }
+alyx-web = { path = "../alyx-web" }
+alyx-runtime = { path = "../alyx-runtime" }
+alyx-executor = { path = "../alyx-executor" }
+tokio = { version = "1", optional = true, features = ["full"] }

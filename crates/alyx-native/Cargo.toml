@@ -1,0 +1,27 @@
+[package]
+name = "alyx-native"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+alyx-plan = { path = "../alyx-plan" }
+alyx-ir = { path = "../alyx-ir" }
+alyx-runtime = { path = "../alyx-runtime" }
+alyx-executor = { path = "../alyx-executor" }
+
+[dev-dependencies]
+alyx-widgets = { path = "../alyx-widgets" }
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+winit = { version = "0.29", optional = true }
+pixels = { version = "0.15", optional = true }
+pollster = { version = "0.3", optional = true }
+wgpu = { version = "0.19", optional = true }
+
+[features]
+default = []
+winit-backend = ["dep:winit"]
+pixels-backend = ["winit-backend", "dep:pixels"]
+wgpu-backend = ["winit-backend", "dep:pollster", "dep:wgpu"]

@@ -1,4 +1,6 @@
-use crate::{FlexDirection, ImageSource, ImageStyle, Layout, Rect, Size, TextStyle};
+use crate::{
+    AccessibilityMetadata, FlexDirection, ImageSource, ImageStyle, Layout, Rect, Size, TextStyle,
+};
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum IrNode<Msg> {
@@ -44,8 +46,19 @@ pub struct Image {
 pub struct HitArea<Msg> {
     pub layout: Layout,
     pub child: Box<IrNode<Msg>>,
+    pub disabled: bool,
     pub on_click: Option<Msg>,
     pub on_hover: Option<Msg>,
+    pub on_key_down: Option<Msg>,
+    pub on_key_up: Option<Msg>,
+    pub on_pointer_down: Option<Msg>,
+    pub on_pointer_up: Option<Msg>,
+    pub on_pointer_move: Option<Msg>,
+    pub on_focus: Option<Msg>,
+    pub on_blur: Option<Msg>,
+    pub on_submit: Option<Msg>,
+    pub navigate_to: Option<String>,
+    pub accessibility: Option<AccessibilityMetadata>,
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -119,8 +132,19 @@ impl<Msg> HitArea<Msg> {
         Self {
             layout,
             child: Box::new(child),
+            disabled: false,
             on_click,
             on_hover,
+            on_key_down: None,
+            on_key_up: None,
+            on_pointer_down: None,
+            on_pointer_up: None,
+            on_pointer_move: None,
+            on_focus: None,
+            on_blur: None,
+            on_submit: None,
+            navigate_to: None,
+            accessibility: None,
         }
     }
 
@@ -140,6 +164,61 @@ impl<Msg> HitArea<Msg> {
         match self.layout {
             Layout::Flex(layout) => (x + layout.padding.left, y + layout.padding.top),
         }
+    }
+
+    pub fn key_down(mut self, msg: Msg) -> Self {
+        self.on_key_down = Some(msg);
+        self
+    }
+
+    pub fn key_up(mut self, msg: Msg) -> Self {
+        self.on_key_up = Some(msg);
+        self
+    }
+
+    pub fn pointer_down(mut self, msg: Msg) -> Self {
+        self.on_pointer_down = Some(msg);
+        self
+    }
+
+    pub fn pointer_up(mut self, msg: Msg) -> Self {
+        self.on_pointer_up = Some(msg);
+        self
+    }
+
+    pub fn pointer_move(mut self, msg: Msg) -> Self {
+        self.on_pointer_move = Some(msg);
+        self
+    }
+
+    pub fn focus(mut self, msg: Msg) -> Self {
+        self.on_focus = Some(msg);
+        self
+    }
+
+    pub fn blur(mut self, msg: Msg) -> Self {
+        self.on_blur = Some(msg);
+        self
+    }
+
+    pub fn submit(mut self, msg: Msg) -> Self {
+        self.on_submit = Some(msg);
+        self
+    }
+
+    pub fn disabled(mut self, disabled: bool) -> Self {
+        self.disabled = disabled;
+        self
+    }
+
+    pub fn navigate_to(mut self, href: impl Into<String>) -> Self {
+        self.navigate_to = Some(href.into());
+        self
+    }
+
+    pub fn accessibility(mut self, accessibility: AccessibilityMetadata) -> Self {
+        self.accessibility = Some(accessibility);
+        self
     }
 }
 
