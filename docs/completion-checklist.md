@@ -9,12 +9,12 @@
 - [x] Static hosting contract documented (`index.html`, `manifest.json`, `alyx-manifest.json`, `app.wasm`, `alyx-loader.js`).
 - [x] `compile` no longer requires `Msg: Send` (review hardening).
 - [x] Regression test added for non-`Send` compile message types.
+- [x] CLI smoke now exercises `/__alyx_event` endpoint with click and keyboard POST payloads during CI.
 
 ## Deferred / incomplete
-- [ ] Browser automation matrix (non-deterministic interaction assertions not in CI).
+- [ ] Full browser automation matrix (Playwright/Cdp interaction assertions across browsers).
 - [ ] Native renderer parity and performance hardening.
-- [ ] CI reliability around long-running preview smoke and flaky environment windows.
-- [ ] Deep compatibility matrix for all historical consumer message patterns.
+- [ ] Deep compatibility matrix for historical message/update patterns.
 
 ## Evidence used in this review pass
 - Core implementation evidence: `crates/alyx-*`

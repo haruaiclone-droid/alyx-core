@@ -91,4 +91,17 @@ for path in ("/", "/index.html"):
             raise SystemExit(f"unexpected status for {path}: {response.status}")
 print("CLI smoke: serve endpoints reachable")
 PY
+            curl -fsS -X POST \
+              -H "Content-Type: application/json" \
+              -d '{"type":"click","x":32,"y":16}' \
+              "http://127.0.0.1:38888/__alyx_event" >/tmp/alyx-event-click.json
+            curl -fsS -X POST \
+              -H "Content-Type: application/json" \
+              -d '{"type":"keydown","key":"Enter"}' \
+              "http://127.0.0.1:38888/__alyx_event" >/tmp/alyx-event-key.json
+            if ! test -s /tmp/alyx-event-click.json && ! test -s /tmp/alyx-event-key.json; then
+              echo "event endpoint smoke produced no payload"
+              exit 1
+            fi
+            echo "CLI smoke: runtime event endpoint reachable"
           )
