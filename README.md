@@ -39,6 +39,8 @@ This repository now contains a one-PR implementation pass that adds:
 - `app.wasm`
 - `alyx-loader.js`
 
+`app.wasm` in this PR is a scaffold placeholder for host-backed preview parity tests; interactive browser runtime execution is validated through `alyx serve` with the runtime bridge.
+
 ## Quick start
 
 ```rust

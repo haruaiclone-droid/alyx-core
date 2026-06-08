@@ -160,5 +160,17 @@
     - ✅ Done: removed overlapping examples from `crates/alyx-core/examples/` (counter, form, hello, image, layout, static_export, web_counter), keeping root examples as the runnable tutorial surface.
   - CI should keep passing with warnings as either resolved or justified.
 - Verification:
-  - `cargo test --workspace --all-features` runs warning-free for duplicate target output paths.
-  - Confirm `cargo run --example counter` still resolves from root package examples.
+- `cargo test --workspace --all-features` runs warning-free for duplicate target output paths.
+- Confirm `cargo run --example counter` still resolves from root package examples.
+
+### 12. Align documentation with actual web/runtime behavior
+- Status: [x]
+- Files:
+  - `README.md`
+  - `docs/web-hosting.md`
+  - `docs/implementation-notes.md`
+- Completion criteria:
+  - Static web bundle contract notes explicitly include `app.wasm` + `alyx-loader.js` contract.
+  - Notes accurately state that this phase’s `app.wasm` is a preview scaffold and that full interactive browser runtime requires `alyx serve` bridge or follow-up wasm runtime integration.
+- Verification:
+  - Manual read-through of updated files for consistency and wording accuracy.

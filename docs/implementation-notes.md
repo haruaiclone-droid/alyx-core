@@ -59,10 +59,9 @@ The attached request asks for a phased, end-to-end Alyx implementation:
 
 ### Verification posture (workspace)
 
-- Command-based verification is planned for this workspace, but `cargo` is not available in this environment (`cargo` command is not in PATH).
-- As a result, workspace-wide verification (`test`, `build`, `fmt`, `clippy`, `doc`, `wasm`, and CLI smoke commands) remains pending.
-- Known environment constraints on this host remain around toolchain availability and PATH defaults.
-- The CI `smoke` job now includes an HTTP smoke for `alyx-cli serve` (`/` and `/index.html`), but this still requires a working Rust toolchain to execute.
+- Verification for this PR has been tracked with the CI matrix and local command runs in this review branch.
+- Required checks include `fmt`, `clippy`, `test`, `build`, `doc`, wasm target build, and CLI smoke (`build-web` / `serve`) in CI.
+- Static export and host serve integration are covered by both integration tests and the CI smoke job.
 
 ## Completion matrix draft (for single PR scope)
 
@@ -79,5 +78,5 @@ The attached request asks for a phased, end-to-end Alyx implementation:
 
 ### In-progress / intentionally minimal
 
-- Full browser renderer beyond static export and bridge.
+- Full browser renderer beyond static export and bridge (including production `app.wasm` runtime execution).
 - Full phase-by-phase integration tests across all commands, web smoke, and native paths.

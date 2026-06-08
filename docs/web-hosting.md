@@ -22,6 +22,10 @@
 - `app.wasm`
 - `alyx-loader.js`
 
+Note:
+- The shipped static bundle includes a runtime bridge script and an `app.wasm` placeholder by default.
+- For full interactive behavior in a browser, either serve with `alyx serve` (runtime-backed bridge path in this PR) or provide a real browser runtime `app.wasm` and runtime loader in a follow-up integration.
+
 Deployment output must include:
 
 - `index.html`
