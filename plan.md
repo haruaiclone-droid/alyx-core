@@ -130,7 +130,7 @@
   - New unit test added for unknown-id keyboard target no-fallback behavior.
 
 ### 11. PR readiness and final explanation
-- Status: [x]
+- Status: [ ]
 - Files:
   - `plan.md`
   - PR body
@@ -138,4 +138,6 @@
   - Remaining risks and follow-up tasks are listed in a linked PR update path.
   - PR is open and linked.
 - Verification:
+  - PR body is updated via `gh`/GitHub API or GitHub App permission to reflect remaining risks and verification.
   - Top-level PR comment exists with remaining risks/follow-ups and hardening summary.
+  - **Current status**: blocked by GitHub permission (`403 Resource not accessible by integration`) when attempting PR body update; branch and changes are already pushed.
