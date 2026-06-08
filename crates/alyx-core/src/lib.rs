@@ -3,7 +3,25 @@ pub mod compiler {
 }
 
 pub mod executor {
-    pub use alyx_executor::*;
+    #[allow(dead_code)]
+    pub trait RenderPlanExecutor {
+        fn run(&self) {}
+    }
+
+    #[allow(dead_code)]
+    pub trait EventPlanExecutor {
+        fn run(&self) {}
+    }
+
+    impl<T> RenderPlanExecutor for T where T: alyx_executor::RenderingPlanExecutor {}
+    impl<T> EventPlanExecutor for T {}
+
+    pub use alyx_executor::{
+        EventPlanExecutor as RuntimeEventPlanExecutor,
+        MemoryRenderer,
+        RenderingPlanExecutor,
+        TraceRenderer,
+    };
 }
 
 pub mod ir {
@@ -37,7 +55,8 @@ pub mod native {
 pub mod prelude {
     pub use crate::compiler::compile;
     pub use crate::executor::{
-        EventPlanExecutor, MemoryRenderer, RenderingPlanExecutor, TraceRenderer,
+        EventPlanExecutor, MemoryRenderer, RenderingPlanExecutor, RenderPlanExecutor,
+        RuntimeEventPlanExecutor, TraceRenderer,
     };
     pub use crate::ir::*;
     pub use crate::runtime::{App, Command, HeadlessRuntime, ViewMetrics};

@@ -177,6 +177,7 @@ where
             if by_id.is_some() {
                 return by_id;
             }
+            return None;
         }
 
         same_type_and_with_point.max_by(|left, right| left.z_index.cmp(&right.z_index))
@@ -465,14 +466,13 @@ where
     where
         R: RenderingPlanExecutor,
     {
-        self.dispatch_pointer_event_with_ids(
-            0.0,
-            0.0,
-            EventType::KeyUp,
-            Some(node),
-            Some(element),
-            renderer,
-        )
+        if let Some(hit) =
+            self.resolve_hit_area(EventType::KeyUp, 0.0, 0.0, Some(node), Some(element)).cloned()
+        {
+            self.dispatch_event(&hit, renderer)
+        } else {
+            None
+        }
     }
 
     pub fn dispatch_submit<R>(
@@ -859,5 +859,14 @@ mod tests {
             runtime_target,
             (key_target.node_id.0, key_target.element_id.0)
         );
+    }
+
+    #[test]
+    fn dispatch_key_events_with_unknown_ids_do_not_fallback_by_position() {
+        let (mut runtime, mut renderer) = build_runtime();
+        runtime.step(&mut renderer);
+
+        assert!(runtime.dispatch_keydown_by_ids(999, 999, &mut renderer).is_none());
+        assert!(runtime.dispatch_keyup_by_ids(999, 999, &mut renderer).is_none());
     }
 }

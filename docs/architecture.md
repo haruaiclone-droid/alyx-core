@@ -11,7 +11,7 @@ The repository is organized as independent layers:
 - `alyx-web`: web export and event encoding helpers.
 - `alyx-host`: static build and preview helpers.
 - `alyx-native`: native adapter extension points.
-- `alyx-core`: convenience re-export façade.
+- `alyx-core`: convenience re-export facade.
 
 ## Data flow
 
@@ -19,17 +19,17 @@ The repository is organized as independent layers:
 
 ```
 Widget API
-    ↓ IntoIr
+    -> IntoIr
 IR (alyx-ir)
-    ↓ compile()
+    -> compile()
 RP / EP / Handlers (alyx-plan, alyx-compiler)
-    ↓ dispatch/update
+    -> dispatch/update
 Runtime state loop (alyx-runtime)
-    ↓ execute()
+    -> execute()
 Renderer (alyx-executor / alyx-web / alyx-native)
 ```
 
-## 1PR scope
+## PR scope
 
 - Every requested layer is present at the crate level.
 - Concrete platform implementations are intentionally minimal and extension-ready.
