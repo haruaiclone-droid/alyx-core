@@ -26,9 +26,6 @@ All widget values implement `IntoIr<Msg>` and output `IrNode<Msg>` in a predicta
 ## Example
 
 ```rust
-let node = Widget::Button(ButtonWidget {
-    label: TextWidget::new("save"),
-    on_click: Some(Msg::Save),
-});
+let node = button("save").on_click(Msg::Save);
 let ir = node.into_ir();
 ```

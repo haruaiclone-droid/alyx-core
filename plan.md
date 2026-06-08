@@ -165,3 +165,18 @@
 - Verification:
   - `cargo test -p alyx-host --tests`
   - `cargo test --workspace --all-features`
+
+### 13. Align CLI demo and docs on button builder-first API
+- Status: [x]
+- Files:
+  - `crates/alyx-cli/src/main.rs`
+  - `docs/getting-started.md`
+  - `docs/widgets.md`
+- Completion criteria:
+  - CLI demo UI and public docs consistently showcase `button(\"label\").on_click(...)` style.
+  - No regression to existing behavior in CLI static export and host preview.
+- Verification:
+  - `cargo check -p alyx-cli`
+  - `cargo test --workspace --all-features`
+  - `cargo run -p alyx-cli -- build-web`
+  - `cargo run -p alyx-cli -- serve 35123 dist` (single request smoke)

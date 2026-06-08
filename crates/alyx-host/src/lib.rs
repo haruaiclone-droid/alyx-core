@@ -496,16 +496,16 @@ fn content_type_for(path: &Path) -> &'static str {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::io::{Read, Write};
-    use std::net::{TcpListener, TcpStream};
-    use std::sync::mpsc;
-    use std::thread;
-    use std::time::{SystemTime, UNIX_EPOCH};
     use alyx_executor::MemoryRenderer;
     use alyx_ir::{
         Align, Color, Container, FlexDirection, FlexLayout, Font, HitArea, IrNode, Justify, Layout,
         Padding, Size, Text, TextStyle,
     };
+    use std::io::{Read, Write};
+    use std::net::{TcpListener, TcpStream};
+    use std::sync::mpsc;
+    use std::thread;
+    use std::time::{SystemTime, UNIX_EPOCH};
 
     #[test]
     fn parse_request_line_extracts_path() {
@@ -618,7 +618,7 @@ mod tests {
                     height: 32.0,
                 },
             });
-            let hit_area = HitArea::new(layout.clone(), button, Some(RuntimeTestMsg::Increment), None);
+            let hit_area = HitArea::new(layout, button, Some(RuntimeTestMsg::Increment), None);
             let root = Container {
                 children: vec![IrNode::HitArea(hit_area)],
                 layout: Layout::Flex(FlexLayout {
@@ -661,7 +661,10 @@ mod tests {
         let port = listener.local_addr().expect("port").port();
         let output_dir = std::env::temp_dir().join(format!(
             "alyx-host-runtime-test-{}",
-            SystemTime::now().duration_since(UNIX_EPOCH).expect("time").as_nanos()
+            SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .expect("time")
+                .as_nanos()
         ));
         build_static_dist_with_bridge(&initial_plan.rp, &output_dir).expect("build static");
         let output_dir_cleanup = output_dir.clone();
@@ -703,11 +706,12 @@ mod tests {
             node: Some(node_id),
             element: Some(element_id),
         });
-        let enter_payload = alyx_web::browser_event_to_json(&alyx_web::BrowserEvent::KeyboardDown {
-            key: "Enter".to_string(),
-            node: Some(node_id),
-            element: Some(element_id),
-        });
+        let enter_payload =
+            alyx_web::browser_event_to_json(&alyx_web::BrowserEvent::KeyboardDown {
+                key: "Enter".to_string(),
+                node: Some(node_id),
+                element: Some(element_id),
+            });
 
         send_event(click_payload);
         send_event(enter_payload);

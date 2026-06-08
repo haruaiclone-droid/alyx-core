@@ -13,27 +13,10 @@ Use widgets and convert to IR with `IntoIr`.
 ```rust
 use alyx_core::{ir::*, runtime::App, widgets::*};
 
-let root = Widget::Container(ContainerWidget {
-    children: vec![
-        Widget::Text(TextWidget::new("Alyx").size(120.0, 24.0)),
-        Widget::Button(ButtonWidget {
-            label: TextWidget::new("Save"),
-            on_click: None,
-        }),
-    ],
-    layout: alyx_ir::Layout::Flex(alyx_ir::FlexLayout {
-        direction: alyx_ir::FlexDirection::Column,
-        gap: 8.0,
-        padding: alyx_ir::Padding {
-            left: 8.0,
-            top: 8.0,
-            right: 8.0,
-            bottom: 8.0,
-        },
-        align: alyx_ir::Align::Start,
-        justify: alyx_ir::Justify::Start,
-    }),
-}).into_ir();
+let root = column::<()>([
+    Widget::Text(text("Alyx").size(120.0, 24.0)),
+    button::<()>("Save"),
+]).into_ir();
 ```
 
 ## 3) Compile and render

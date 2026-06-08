@@ -8,7 +8,7 @@ use alyx_core::{
     host::{HostOptions, build_web, serve_http_with_runtime},
     ir::Size,
     runtime::{App, Command as RuntimeCommand},
-    widgets::{ButtonWidget, ContainerWidget, IntoIr, TextWidget, Widget},
+    widgets::{IntoIr, Widget, button, column, text},
 };
 
 type CliResult<T> = Result<T, Box<dyn std::error::Error>>;
@@ -198,23 +198,13 @@ impl App for CliDemoApp {
 }
 
 fn cli_demo_ui() -> alyx_core::ir::IrNode<()> {
-    Widget::Container(
-        ContainerWidget::column(vec![
-            Widget::Text(TextWidget::new("Alyx CLI Demo").size(160.0, 24.0)),
-            Widget::Button(ButtonWidget {
-                label: TextWidget::new("noop"),
-                on_click: Some(()),
-            }),
-            Widget::Container(
-                ContainerWidget::column(vec![Widget::Text(
-                    TextWidget::new("static export demo").size(140.0, 18.0),
-                )])
-                .gap(6.0),
-            ),
-        ])
-        .gap(10.0)
-        .with_padding(12.0, 12.0, 12.0, 12.0),
-    )
+    column([
+        Widget::Text(text("Alyx CLI Demo").size(160.0, 24.0)),
+        button::<()>("noop").on_click(()),
+        Widget::Text(text("static export demo").size(140.0, 18.0)),
+    ])
+    .padding(8.0, 10.0, 8.0, 10.0)
+    .gap(10.0)
     .into_ir()
 }
 
