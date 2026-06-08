@@ -148,16 +148,17 @@
   - All command batches completed successfully; two Cargo warnings remain (see task 11).
 
 ### 11. Resolve workspace artifact/build warnings before PR merge (optional hardening)
-- Status: [ ]
+- Status: [x]
 - Files:
   - `crates/alyx-cli/Cargo.toml`
-  - `Cargo.toml` workspace example name strategy
+  - `crates/alyx-core/examples/`
 - Completion criteria:
   - Remove duplicate binary target name warning:
     - Keep one `alyx` binary target only; duplicate source mapping to a second bin should be avoided.
     - ✅ Done in `crates/alyx-cli/Cargo.toml`: removed the redundant `alyx-cli` bin alias.
   - Remove example output filename collisions between `alyx-core` and `alyx-examples` in the same workspace target directory.
+    - ✅ Done: removed overlapping examples from `crates/alyx-core/examples/` (counter, form, hello, image, layout, static_export, web_counter), keeping root examples as the runnable tutorial surface.
   - CI should keep passing with warnings as either resolved or justified.
 - Verification:
-  - `cargo test --workspace --all-features` (warning-free for target/output naming) in a clean cache scenario.
-  - Confirm no `output filename collision` or duplicate-bin warning lines remain.
+  - `cargo test --workspace --all-features` runs warning-free for duplicate target output paths.
+  - Confirm `cargo run --example counter` still resolves from root package examples.
