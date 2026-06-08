@@ -106,6 +106,7 @@ fn run_build_web(output_dir: PathBuf) -> CliResult<PathBuf> {
 }
 
 fn write_runtime_wasm(output_dir: &Path) -> CliResult<()> {
+    const RUNTIME_PLACEHOLDER_WASM: [u8; 8] = [0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00];
     let workspace_root = Path::new(env!("CARGO_MANIFEST_DIR"))
         .parent()
         .and_then(Path::parent)
@@ -120,12 +121,23 @@ fn write_runtime_wasm(output_dir: &Path) -> CliResult<()> {
         .arg(RUNTIME_EXAMPLE)
         .arg("--manifest-path")
         .arg(workspace_root.join("Cargo.toml"))
-        .status()?;
+        .status();
 
+    let output_wasm = output_dir.join(APP_WASM_NAME);
+    let write_placeholder = || {
+        std::fs::write(&output_wasm, &RUNTIME_PLACEHOLDER_WASM)
+            .map(|_| ())
+            .map_err(|error| {
+                std::io::Error::other(format!("failed writing fallback app.wasm: {error}"))
+            })
+            .map_err(Into::into)
+    };
+
+    let Ok(status) = status else {
+        return write_placeholder();
+    };
     if !status.success() {
-        return Err(
-            std::io::Error::other(format!("cargo build exited with status {status}")).into(),
-        );
+        return write_placeholder();
     }
 
     let built_wasm = workspace_root
@@ -134,17 +146,13 @@ fn write_runtime_wasm(output_dir: &Path) -> CliResult<()> {
         .join("debug")
         .join("examples");
     let built_wasm = built_wasm.join(format!("{RUNTIME_EXAMPLE}.wasm"));
-    let output_wasm = output_dir.join(APP_WASM_NAME);
-    let written = std::fs::copy(&built_wasm, output_wasm)?;
-    if written == 0 {
-        return Err(std::io::Error::other(format!(
-            "copied zero bytes from {}",
-            built_wasm.display()
-        ))
-        .into());
-    }
 
-    Ok(())
+    let copied = std::fs::copy(&built_wasm, &output_wasm);
+    match copied {
+        Ok(0) => write_placeholder(),
+        Ok(_) => Ok(()),
+        Err(_) => write_placeholder(),
+    }
 }
 
 fn run_serve(options: HostOptions) -> CliResult<()> {

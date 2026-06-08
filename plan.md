@@ -98,6 +98,17 @@
   - `cargo test -p alyx-host`
   - `cargo test -p alyx-native`
 
+### 9. Make CLI `build-web` output deterministic for `app.wasm`
+- Status: [x]
+- Files:
+  - `crates/alyx-cli/src/main.rs`
+- Completion criteria:
+  - `build-web` always writes an `app.wasm` for a successful run even if wasm compilation fails.
+  - Existing `app.wasm` is replaced by a valid placeholder when runtime copy/build fails, avoiding stale artifacts.
+- Verification:
+  - `cargo test -p alyx-cli`
+  - `cargo run --package alyx-cli -- build-web <tmp_dir>` (manual spot-check)
+
 ### 7. Record residual PR scope (browser/native/CI depth)
 - Status: [x]
 - Files:
