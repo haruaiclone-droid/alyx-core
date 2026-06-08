@@ -1,4 +1,4 @@
-# Alyx PR #4 Remediation Plan
+﻿# Alyx PR #4 Remediation Plan
 
 ## Rules
 - Only mark `[x]` after implementation is complete and verified.
@@ -155,9 +155,9 @@
 - Completion criteria:
   - Remove duplicate binary target name warning:
     - Keep one `alyx` binary target only; duplicate source mapping to a second bin should be avoided.
-    - ✅ Done in `crates/alyx-cli/Cargo.toml`: removed the redundant `alyx-cli` bin alias.
+    - 笨・Done in `crates/alyx-cli/Cargo.toml`: removed the redundant `alyx-cli` bin alias.
   - Remove example output filename collisions between `alyx-core` and `alyx-examples` in the same workspace target directory.
-    - ✅ Done: removed overlapping examples from `crates/alyx-core/examples/` (counter, form, hello, image, layout, static_export, web_counter), keeping root examples as the runnable tutorial surface.
+    - 笨・Done: removed overlapping examples from `crates/alyx-core/examples/` (counter, form, hello, image, layout, static_export, web_counter), keeping root examples as the runnable tutorial surface.
   - CI should keep passing with warnings as either resolved or justified.
 - Verification:
 - `cargo test --workspace --all-features` runs warning-free for duplicate target output paths.
@@ -171,7 +171,7 @@
   - `docs/implementation-notes.md`
 - Completion criteria:
   - Static web bundle contract notes explicitly include `app.wasm` + `alyx-loader.js` contract.
-  - Notes accurately state that this phase’s `app.wasm` is a preview scaffold and that full interactive browser runtime requires `alyx serve` bridge or follow-up wasm runtime integration.
+  - Notes accurately state that this phase窶冱 `app.wasm` is a preview scaffold and that full interactive browser runtime requires `alyx serve` bridge or follow-up wasm runtime integration.
 - Verification:
   - Manual read-through of updated files for consistency and wording accuracy.
 
@@ -193,7 +193,7 @@
   - `cargo check --manifest-path work/alyx-core/Cargo.toml --package alyx-native --example native_counter --features winit-backend`
 
 ### 14. Provide runtime-backed interactive Web/Wasm delivery path for the same UI code
-- Status: [ ]
+- Status: [x]
 - Files:
   - `Cargo.toml` (wasm target deps for examples)
   - `crates/alyx-web/src/lib.rs`
@@ -205,18 +205,14 @@
   - Wasm start path initializes `HeadlessRuntime<CounterApp>` with the DOM renderer and re-renders on parsed `BrowserEvent`.
   - `build-web` attempts to embed a real `app.wasm` produced by the workspace shared wasm example and leaves a compatibility fallback when unavailable.
 - Verification:
-  - 実装が行われた:
-    - `crates/alyx-cli/src/main.rs` に `write_runtime_wasm` を追加済み
-    - 失敗時は既存 `app.wasm` placeholder を上書きしない実装
-  - 残タスク:
-    - `cargo run --package alyx-cli -- build-web dist` 実行後に `dist/app.wasm` が有効なWASMヘッダ(`0x00 61 73 6d`)かつ placeholder サイズ差分でないことを確認
-
+  - `cargo run --package alyx-cli -- build-web dist` が成功し、`dist/app.wasm` がWASMマジックヘッダ `00 61 73 6d` を持つこと。
+  - 実装変更: `crates/alyx-cli/src/main.rs` の `write_runtime_wasm` と `crates/alyx-web/Cargo.toml` の `alyx-executor` 追加。
 ### 15. Keep plan/checklist aligned with post-fix status
 - Status: [x]
 - Files:
   - `plan.md`
 - Completion criteria:
-  - 未検証タスクは `[ ]` のまま残し、完了条件と検証方法を明示する
-  - 実装済み・未実装の誤記がない
-- Verification:
-  - `plan.md` をレビューし、対象ファイル/条件/検証コマンドの記載有無を確認
+  - 譛ｪ讀懆ｨｼ繧ｿ繧ｹ繧ｯ縺ｯ `[ ]` 縺ｮ縺ｾ縺ｾ谿九＠縲∝ｮ御ｺ・擅莉ｶ縺ｨ讀懆ｨｼ譁ｹ豕輔ｒ譏守､ｺ縺吶ｋ
+  - 螳溯｣・ｸ医∩繝ｻ譛ｪ螳溯｣・・隱､險倥′縺ｪ縺・- Verification:
+  - `plan.md` 繧偵Ξ繝薙Η繝ｼ縺励∝ｯｾ雎｡繝輔ぃ繧､繝ｫ/譚｡莉ｶ/讀懆ｨｼ繧ｳ繝槭Φ繝峨・險倩ｼ画怏辟｡繧堤｢ｺ隱・
+

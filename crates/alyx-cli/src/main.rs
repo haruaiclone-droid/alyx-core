@@ -1,6 +1,6 @@
 use std::env;
 use std::path::{Path, PathBuf};
-use std::process::Command;
+use std::process::Command as ProcessCommand;
 
 use alyx_core::{
     compiler::compile,
@@ -112,7 +112,7 @@ fn write_runtime_wasm(output_dir: &Path) -> CliResult<()> {
         .ok_or_else(|| std::io::Error::other("invalid workspace manifest path"))?
         .to_path_buf();
 
-    let status = Command::new("cargo")
+    let status = ProcessCommand::new("cargo")
         .arg("build")
         .arg("--target")
         .arg(WASM_TARGET)

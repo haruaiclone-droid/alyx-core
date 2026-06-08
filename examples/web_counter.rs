@@ -13,9 +13,11 @@ use web_sys::window;
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen::{prelude::*, JsCast, JsValue};
 #[cfg(target_arch = "wasm32")]
-use alyx_plan::EventType;
+use alyx_core::web::BrowserDomRenderer;
 #[cfg(target_arch = "wasm32")]
-use alyx_web::wasm::BrowserDomRenderer;
+use alyx_core::plan::EventType;
+#[cfg(target_arch = "wasm32")]
+use alyx_core::web::{browser_event_to_runtime, parse_browser_event};
 #[cfg(target_arch = "wasm32")]
 use js_sys;
 
@@ -53,10 +55,10 @@ where
 
 #[cfg(target_arch = "wasm32")]
 fn apply_browser_event(raw: &str) {
-    let Some(event) = alyx_web::parse_browser_event(raw) else {
+    let Some(event) = parse_browser_event(raw) else {
         return;
     };
-    let runtime_event = alyx_web::browser_event_to_runtime(&event);
+    let runtime_event = browser_event_to_runtime(&event);
 
     with_runtime(|runtime, renderer| {
         let _ = match runtime_event.event_type {
@@ -65,7 +67,7 @@ fn apply_browser_event(raw: &str) {
                     runtime.dispatch_pointer_event_with_ids(
                         runtime_event.x,
                         runtime_event.y,
-                        alyx_plan::EventType::Click,
+                        EventType::Click,
                         Some(node),
                         Some(element),
                         renderer,
@@ -79,7 +81,7 @@ fn apply_browser_event(raw: &str) {
                     runtime.dispatch_pointer_event_with_ids(
                         runtime_event.x,
                         runtime_event.y,
-                        alyx_plan::EventType::PointerDown,
+                        EventType::PointerDown,
                         Some(node),
                         Some(element),
                         renderer,
@@ -93,7 +95,7 @@ fn apply_browser_event(raw: &str) {
                     runtime.dispatch_pointer_event_with_ids(
                         runtime_event.x,
                         runtime_event.y,
-                        alyx_plan::EventType::PointerUp,
+                        EventType::PointerUp,
                         Some(node),
                         Some(element),
                         renderer,
@@ -107,7 +109,7 @@ fn apply_browser_event(raw: &str) {
                     runtime.dispatch_pointer_event_with_ids(
                         runtime_event.x,
                         runtime_event.y,
-                        alyx_plan::EventType::PointerMove,
+                        EventType::PointerMove,
                         Some(node),
                         Some(element),
                         renderer,
@@ -173,13 +175,13 @@ fn apply_browser_event(raw: &str) {
 
 #[cfg(target_arch = "wasm32")]
 #[wasm_bindgen]
-pub fn __alyxHandleEvent(payload: String) {
+pub fn alyx_handle_event(payload: String) {
     apply_browser_event(&payload);
 }
 
 #[cfg(target_arch = "wasm32")]
 #[wasm_bindgen(start)]
-pub fn main() {
+pub fn wasm_start() {
     let mut runtime = HeadlessRuntime::new(
         CounterApp,
         Size {
@@ -190,13 +192,13 @@ pub fn main() {
     let mut renderer = BrowserDomRenderer::default();
 
     runtime.step(&mut renderer);
-    RUNTIME.with(|runtime| {
-        *runtime.borrow_mut() = Some(WasmCounterRuntime { runtime, renderer });
+    RUNTIME.with(|runtime_slot| {
+        *runtime_slot.borrow_mut() = Some(WasmCounterRuntime { runtime, renderer });
     });
 
     if let Some(window) = window() {
         let callback = Closure::wrap(Box::new(|payload: String| {
-            __alyxHandleEvent(payload);
+            alyx_handle_event(payload);
         }) as Box<dyn Fn(String)>);
         let _ = js_sys::Reflect::set(
             window.unchecked_ref(),
@@ -206,3 +208,6 @@ pub fn main() {
         callback.forget();
     }
 }
+
+#[cfg(target_arch = "wasm32")]
+fn main() {}

@@ -73,6 +73,9 @@ version = "0.1.0"
 dependencies = [
  "alyx-core",
  "alyx-executor",
+ "js-sys",
+ "wasm-bindgen",
+ "web-sys",
 ]
 
 [[package]]
@@ -133,9 +136,13 @@ dependencies = [
 name = "alyx-web"
 version = "0.1.0"
 dependencies = [
+ "alyx-executor",
  "alyx-ir",
  "alyx-plan",
+ "js-sys",
  "serde_json",
+ "wasm-bindgen",
+ "web-sys",
 ]
 
 [[package]]
