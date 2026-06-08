@@ -9,8 +9,8 @@
 - CLI flow is exposed from the `alyx` binary in the `alyx-cli` crate:
   - `cargo run --package alyx-cli -- --help`
   - `cargo run --package alyx-cli -- build-web dist`
-- `cargo run --package alyx-cli -- serve 3000 dist`
-- `cargo run --package alyx-cli -- serve dist`
+  - `cargo run --package alyx-cli -- serve 3000 dist`
+  - `cargo run --package alyx-cli -- serve dist`
 
 ## Deploying a static dist
 
