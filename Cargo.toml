@@ -30,3 +30,8 @@ version = "0.1.0"
 [dependencies]
 alyx-core = { path = "crates/alyx-core" }
 alyx-executor = { path = "crates/alyx-executor" }
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+wasm-bindgen = "0.2"
+web-sys = { version = "0.3", features = ["Window", "Document", "HtmlElement"] }
+js-sys = "0.3"

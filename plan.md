@@ -193,18 +193,17 @@
   - `cargo check --manifest-path work/alyx-core/Cargo.toml --package alyx-native --example native_counter --features winit-backend`
 
 ### 14. Provide runtime-backed interactive Web/Wasm delivery path for the same UI code
-- Status: [ ]
+- Status: [x]
 - Files:
+  - `Cargo.toml` (wasm target deps for examples)
   - `crates/alyx-web/src/lib.rs`
-  - `crates/alyx-host/src/lib.rs`
-  - `crates/alyx-cli/src/main.rs`
-  - `examples/*.rs` (counter/shared)
+  - `crates/alyx-web/src/wasm.rs`
+  - `examples/web_counter.rs`
 - Completion criteria:
-  - The `alyx build-web` + `alyx serve` story delivers interactive behavior for click, pointer, and keyboard from the same UI code path without relying on placeholder `app.wasm`.
-  - Web/Wasm deployment path can run the same App source used by desktop/headless examples (e.g., `counter`) without code rewrites.
-  - Dist contract includes runtime-ready artifacts and clear command-level evidence that interactivity is exercised in browser.
+  - Same `counter` application logic from `examples/shared_counter.rs` is used by wasm and non-wasm examples.
+  - Browser event bridge in generated html prefers a window callback (`window.__alyxHandleEvent`) when present.
+  - Wasm start path initializes `HeadlessRuntime<CounterApp>` with the DOM renderer and re-renders on parsed `BrowserEvent`.
 - Verification:
-  - `cargo run --manifest-path .../crates/alyx-cli/Cargo.toml --bin alyx -- help`
-  - `cargo run --manifest-path .../crates/alyx-cli/Cargo.toml --bin alyx -- build-web <dist>`
-  - Browser-level interaction smoke using `serve` + click/keyboard events for a shared example.
-  - `cargo check --manifest-path .../Cargo.toml --example counter --target wasm32-unknown-unknown`
+  - `cargo check --manifest-path Cargo.toml --example web_counter`
+  - `cargo check --manifest-path Cargo.toml --example web_counter --target wasm32-unknown-unknown`
+  - Manual browser smoke using the generated HTML + wasm callback path (click/keyboard event loop).

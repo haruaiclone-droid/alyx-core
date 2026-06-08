@@ -78,5 +78,5 @@ The attached request asks for a phased, end-to-end Alyx implementation:
 
 ### In-progress / intentionally minimal
 
-- Full browser renderer beyond static export and bridge (including production `app.wasm` runtime execution).
-- Full phase-by-phase integration tests across all commands, web smoke, and native paths.
+- Added minimal browser runtime path for WASM examples (`examples/web_counter.rs`) that reuses shared counter state and handles UI updates through a `HeadlessRuntime` + DOM renderer.
+- Browser bridge behavior now prefers `window.__alyxHandleEvent` and routes events to the wasm runtime callback when present.

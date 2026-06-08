@@ -3,6 +3,12 @@ use std::collections::HashMap;
 use alyx_ir::{AccessibilityMetadata, Role};
 use alyx_plan::{EventPlan, EventType, RenderingPlan, RpImage, RpNode, RpText};
 
+#[cfg(target_arch = "wasm32")]
+pub mod wasm;
+
+#[cfg(target_arch = "wasm32")]
+pub use wasm::BrowserDomRenderer;
+
 #[derive(Clone, Debug)]
 pub enum BrowserEvent {
     Click {
@@ -514,6 +520,10 @@ pub fn js_event_bridge(endpoint: &str) -> String {
   const endpoint = "{endpoint}";
   async function post(payload) {{
     try {{
+      if (typeof window.__alyxHandleEvent === "function") {{
+        window.__alyxHandleEvent(JSON.stringify(payload));
+        return;
+      }}
       await fetch(endpoint, {{
         method: "POST",
         headers: {{ "Content-Type": "application/json" }},
@@ -737,5 +747,7 @@ mod tests {
         assert!(script.contains("/__alyx_event"));
         assert!(script.contains("eventTargetIds"));
         assert!(script.contains("document.activeElement"));
+        assert!(script.contains("__alyxHandleEvent"));
+        assert!(script.contains("JSON.stringify"));
     }
 }
