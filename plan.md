@@ -113,3 +113,16 @@
     - Browser automation coverage expansion
     - Native renderer completeness roadmap
     - CI smoke reliability hardening
+
+### 9. Local verification command confirmation
+- Status: [ ]
+- Files:
+  - `N/A (environment checks)`
+- Completion criteria:
+  - `cargo fmt --all -- --check`
+  - `cargo clippy --workspace --all-targets --all-features`
+  - `cargo test --workspace --all-features`
+  - `cargo build --workspace --all-features`
+- Verification:
+  - Execute the above commands locally and confirm pass.
+  - In this environment, `cargo` is currently unavailable, so this remains pending until run in a configured toolchain.
