@@ -496,6 +496,16 @@ fn content_type_for(path: &Path) -> &'static str {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::io::{Read, Write};
+    use std::net::{TcpListener, TcpStream};
+    use std::sync::mpsc;
+    use std::thread;
+    use std::time::{SystemTime, UNIX_EPOCH};
+    use alyx_executor::MemoryRenderer;
+    use alyx_ir::{
+        Align, Color, Container, FlexDirection, FlexLayout, Font, HitArea, IrNode, Justify, Layout,
+        Padding, Size, Text, TextStyle,
+    };
 
     #[test]
     fn parse_request_line_extracts_path() {
@@ -529,12 +539,11 @@ mod tests {
 
     #[test]
     fn build_static_dist_writes_expected_artifacts() {
-        use std::fs;
-        use std::time::{SystemTime, UNIX_EPOCH};
         let now = SystemTime::now()
             .duration_since(UNIX_EPOCH)
             .expect("time")
             .as_nanos();
+        use std::fs;
         let output_dir = std::env::temp_dir().join(format!("alyx-host-static-{now}"));
 
         let output = crate::build_static_dist(
@@ -558,5 +567,153 @@ mod tests {
         assert!(manifest.contains("\"renderer\":\"canvas\""));
 
         let _ = fs::remove_dir_all(output_dir);
+    }
+
+    #[derive(Clone)]
+    enum RuntimeTestMsg {
+        Increment,
+    }
+
+    struct RuntimeTestApp;
+
+    impl App for RuntimeTestApp {
+        type Message = RuntimeTestMsg;
+        type State = u32;
+
+        fn initial_state(&self) -> Self::State {
+            0
+        }
+
+        fn update(
+            &self,
+            state: &mut Self::State,
+            message: Self::Message,
+        ) -> Vec<Command<Self::Message>> {
+            match message {
+                RuntimeTestMsg::Increment => {
+                    *state += 1;
+                    Vec::new()
+                }
+            }
+        }
+
+        fn view(&self, _state: &Self::State) -> IrNode<Self::Message> {
+            let layout = Layout::Flex(FlexLayout::row());
+            let button = IrNode::Text(Text {
+                content: "increment".to_string(),
+                style: TextStyle {
+                    font: Font {
+                        family: "mono".to_string(),
+                    },
+                    size: 16.0,
+                    color: Color {
+                        r: 0.0,
+                        g: 0.0,
+                        b: 0.0,
+                        a: 1.0,
+                    },
+                },
+                size: Size {
+                    width: 140.0,
+                    height: 32.0,
+                },
+            });
+            let hit_area = HitArea::new(layout.clone(), button, Some(RuntimeTestMsg::Increment), None);
+            let root = Container {
+                children: vec![IrNode::HitArea(hit_area)],
+                layout: Layout::Flex(FlexLayout {
+                    direction: FlexDirection::Column,
+                    gap: 8.0,
+                    padding: Padding {
+                        left: 12.0,
+                        top: 12.0,
+                        right: 12.0,
+                        bottom: 12.0,
+                    },
+                    align: Align::Start,
+                    justify: Justify::Start,
+                }),
+            };
+            IrNode::Container(root)
+        }
+    }
+
+    #[test]
+    fn serve_one_runtime_updates_state_for_click_and_enter_key_events() {
+        let mut runtime = HeadlessRuntime::new(
+            RuntimeTestApp,
+            Size {
+                width: 220.0,
+                height: 120.0,
+            },
+        );
+        let renderer = MemoryRenderer::default();
+        let initial_plan = runtime.compile_frame().expect("runtime has plan");
+        let click_hit = initial_plan
+            .ep
+            .hit_areas
+            .iter()
+            .find(|area| area.event_type == alyx_plan::EventType::Click)
+            .expect("click area");
+        let ids = (click_hit.node_id.0, click_hit.element_id.0);
+
+        let listener = TcpListener::bind(("127.0.0.1", 0)).expect("serve listener");
+        let port = listener.local_addr().expect("port").port();
+        let output_dir = std::env::temp_dir().join(format!(
+            "alyx-host-runtime-test-{}",
+            SystemTime::now().duration_since(UNIX_EPOCH).expect("time").as_nanos()
+        ));
+        build_static_dist_with_bridge(&initial_plan.rp, &output_dir).expect("build static");
+        let output_dir_cleanup = output_dir.clone();
+
+        let (state_tx, state_rx) = mpsc::channel();
+        let (node_id, element_id) = ids;
+
+        thread::spawn(move || {
+            let mut runtime = runtime;
+            let mut renderer = renderer;
+            let out = output_dir;
+            for _ in 0..2 {
+                let (mut stream, _) = listener.accept().expect("accept");
+                serve_one_runtime(&mut stream, &out, &mut runtime, &mut renderer)
+                    .expect("serve one runtime");
+            }
+            let final_state = *runtime.state().expect("state");
+            state_tx.send(final_state).expect("state send");
+        });
+
+        let send_event = |payload: String| {
+            let mut client =
+                TcpStream::connect((String::from("127.0.0.1"), port)).expect("connect");
+            let request = format!(
+                "POST /__alyx_event HTTP/1.1\r\nHost: 127.0.0.1\r\nContent-Type: application/json\r\nContent-Length: {}\r\n\r\n{}",
+                payload.len(),
+                payload
+            );
+            client.write_all(request.as_bytes()).expect("request write");
+            let mut response = String::new();
+            client.read_to_string(&mut response).expect("read response");
+            assert!(response.starts_with("HTTP/1.1 200 OK"));
+            assert!(response.ends_with("ok"));
+        };
+
+        let click_payload = alyx_web::browser_event_to_json(&alyx_web::BrowserEvent::Click {
+            x: 10.0,
+            y: 10.0,
+            node: Some(node_id),
+            element: Some(element_id),
+        });
+        let enter_payload = alyx_web::browser_event_to_json(&alyx_web::BrowserEvent::KeyboardDown {
+            key: "Enter".to_string(),
+            node: Some(node_id),
+            element: Some(element_id),
+        });
+
+        send_event(click_payload);
+        send_event(enter_payload);
+
+        let final_state = state_rx.recv().expect("final state");
+        assert_eq!(final_state, 2);
+        let _ = std::fs::remove_dir_all(output_dir_cleanup);
     }
 }

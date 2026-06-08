@@ -10,3 +10,6 @@ alyx-plan = { path = "../alyx-plan" }
 alyx-web = { path = "../alyx-web" }
 alyx-runtime = { path = "../alyx-runtime" }
 alyx-executor = { path = "../alyx-executor" }
+
+[dev-dependencies]
+alyx-ir = { path = "../alyx-ir" }

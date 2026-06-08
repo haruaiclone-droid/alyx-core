@@ -90,6 +90,7 @@ name = "alyx-host"
 version = "0.1.0"
 dependencies = [
  "alyx-executor",
+ "alyx-ir",
  "alyx-plan",
  "alyx-runtime",
  "alyx-web",

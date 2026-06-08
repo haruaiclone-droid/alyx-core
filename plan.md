@@ -152,3 +152,16 @@
   - `cargo check -p alyx-native --example native --features winit-backend`
   - `cargo check --workspace --examples`
   - `cargo test --workspace --all-features`
+
+### 12. Add runtime endpoint integration test for click/enter event handling
+- Status: [x]
+- Files:
+  - `crates/alyx-host/src/lib.rs`
+  - `crates/alyx-host/Cargo.toml`
+- Completion criteria:
+  - `serve_one_runtime` processes `/__alyx_event` POST with click and Enter key payloads.
+  - Runtime state updates are asserted from an observable channel and match expected value (`2`).
+  - Test compiles without clippy-significant warnings and does not affect public API.
+- Verification:
+  - `cargo test -p alyx-host --tests`
+  - `cargo test --workspace --all-features`
