@@ -59,14 +59,14 @@ pub mod native {
 }
 
 pub mod prelude {
-    pub use crate::run;
-    pub use crate::widgets::{button, text, row, column};
     pub use crate::compiler::compile;
     pub use crate::executor::{
         EventPlanExecutor, MemoryRenderer, RenderPlanExecutor, RenderingPlanExecutor,
         RuntimeEventPlanExecutor, TraceRenderer,
     };
     pub use crate::ir::*;
+    pub use crate::run;
     pub use crate::runtime::{App, Command, HeadlessRuntime, ViewMetrics};
     pub use crate::widgets::*;
+    pub use crate::widgets::{button, column, row, text};
 }

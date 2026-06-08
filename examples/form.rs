@@ -1,5 +1,6 @@
-use alyx_core::{ir::Size, runtime::App, widgets::*, widgets::TextInputWidget};
+use alyx_core::ir::{Align, FlexDirection, FlexLayout, Justify, Layout, Padding};
 use alyx_core::runtime::HeadlessRuntime;
+use alyx_core::{ir::Size, runtime::App, widgets::TextInputWidget, widgets::*};
 use alyx_executor::MemoryRenderer;
 
 #[derive(Clone)]
@@ -10,7 +11,13 @@ enum Msg {
 }
 
 fn main() {
-    let mut runtime = HeadlessRuntime::new(FormApp, Size { width: 360.0, height: 180.0 });
+    let mut runtime = HeadlessRuntime::new(
+        FormApp,
+        Size {
+            width: 360.0,
+            height: 180.0,
+        },
+    );
     let mut renderer = MemoryRenderer::default();
     runtime.step(&mut renderer);
 }
@@ -25,7 +32,11 @@ impl App for FormApp {
         true
     }
 
-    fn update(&self, state: &mut Self::State, message: Self::Message) -> Vec<alyx_core::runtime::Command<Self::Message>> {
+    fn update(
+        &self,
+        state: &mut Self::State,
+        message: Self::Message,
+    ) -> Vec<alyx_core::runtime::Command<Self::Message>> {
         match message {
             Msg::ToggleTerms => {
                 *state = !*state;
@@ -46,20 +57,32 @@ impl App for FormApp {
         Widget::Container(ContainerWidget {
             children: vec![
                 Widget::Text(TextWidget::new("Registration").size(220.0, 24.0)),
-                Widget::TextInput(TextInputWidget::new("", Some(Msg::ChangeName)).placeholder("Your name")),
-                Widget::Spacer { width: 0.0, height: 8.0 },
-                Widget::Checkbox(CheckboxWidget::new(format!("Terms {terms}"), *state, Some(Msg::ToggleTerms))),
-                Widget::Spacer { width: 0.0, height: 8.0 },
+                Widget::TextInput(
+                    TextInputWidget::new("", Some(Msg::ChangeName)).placeholder("Your name"),
+                ),
+                Widget::Spacer {
+                    width: 0.0,
+                    height: 8.0,
+                },
+                Widget::Checkbox(CheckboxWidget::new(
+                    format!("Terms {terms}"),
+                    *state,
+                    Some(Msg::ToggleTerms),
+                )),
+                Widget::Spacer {
+                    width: 0.0,
+                    height: 8.0,
+                },
                 Widget::Button(ButtonWidget::text("submit", Msg::Submit)),
             ],
-            layout: alyx_ir::Layout::Flex(alyx_ir::FlexLayout {
-                direction: alyx_ir::FlexDirection::Column,
+            layout: Layout::Flex(FlexLayout {
+                direction: FlexDirection::Column,
                 gap: 8.0,
-                padding: alyx_ir::Padding::default(),
-                align: alyx_ir::Align::Start,
-                justify: alyx_ir::Justify::Start,
+                padding: Padding::default(),
+                align: Align::Start,
+                justify: Justify::Start,
             }),
-        }).into_ir()
+        })
+        .into_ir()
     }
 }
-

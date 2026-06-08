@@ -466,14 +466,14 @@ where
     where
         R: RenderingPlanExecutor,
     {
-        if let Some(hit) = self
-            .resolve_hit_area(EventType::KeyUp, 0.0, 0.0, Some(node), Some(element))
-            .cloned()
-        {
-            self.dispatch_event(&hit, renderer)
-        } else {
-            None
-        }
+        self.dispatch_pointer_event_with_ids(
+            0.0,
+            0.0,
+            EventType::KeyUp,
+            Some(node),
+            Some(element),
+            renderer,
+        )
     }
 
     pub fn dispatch_submit<R>(

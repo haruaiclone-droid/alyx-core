@@ -224,7 +224,11 @@ where
                 alyx_plan::EventType::KeyUp => {
                     if let (Some(node), Some(element)) = (runtime_event.node, runtime_event.element)
                     {
-                        runtime.dispatch_keyup_by_ids(node, element, renderer)
+                        runtime
+                            .dispatch_keyup_by_ids(node, element, renderer)
+                            .or_else(|| {
+                                runtime.dispatch_keyup(runtime_event.x, runtime_event.y, renderer)
+                            })
                     } else {
                         runtime.dispatch_keyup(runtime_event.x, runtime_event.y, renderer)
                     }
@@ -334,7 +338,7 @@ fn write_manifest(output_dir: &Path) -> io::Result<()> {
         if let Some(parent) = manifest.parent() {
             std::fs::create_dir_all(parent)?;
         }
-        std::fs::write(&manifest, manifest_body)?;
+        std::fs::write(&manifest, &manifest_body)?;
     }
     Ok(())
 }
@@ -522,10 +526,7 @@ mod tests {
             content_type_for(Path::new("foo.bin")),
             "application/octet-stream"
         );
-        assert_eq!(
-            content_type_for(Path::new("foo.wasm")),
-            "application/wasm"
-        );
+        assert_eq!(content_type_for(Path::new("foo.wasm")), "application/wasm");
     }
 
     #[test]

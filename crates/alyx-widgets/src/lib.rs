@@ -15,13 +15,13 @@ pub struct ButtonBuilder<Msg> {
     _marker: PhantomData<Msg>,
 }
 
-impl<Msg> ButtonBuilder<Msg> {
+impl<Msg: Clone> ButtonBuilder<Msg> {
     pub fn on_click(self, msg: Msg) -> Widget<Msg> {
         Widget::Button(ButtonWidget::text(self.label, msg))
     }
 }
 
-pub fn button<Msg>(label: impl Into<String>) -> ButtonBuilder<Msg> {
+pub fn button<Msg: Clone>(label: impl Into<String>) -> ButtonBuilder<Msg> {
     ButtonBuilder {
         label: label.into(),
         _marker: PhantomData,
@@ -32,11 +32,11 @@ pub fn text(content: impl Into<String>) -> TextWidget {
     TextWidget::new(content)
 }
 
-pub fn row<Msg>(children: impl IntoIterator<Item = Widget<Msg>>) -> Row<Msg> {
+pub fn row<Msg: Clone>(children: impl IntoIterator<Item = Widget<Msg>>) -> Row<Msg> {
     Row::new(children.into_iter().collect())
 }
 
-pub fn column<Msg>(children: impl IntoIterator<Item = Widget<Msg>>) -> Column<Msg> {
+pub fn column<Msg: Clone>(children: impl IntoIterator<Item = Widget<Msg>>) -> Column<Msg> {
     Column::new(children.into_iter().collect())
 }
 

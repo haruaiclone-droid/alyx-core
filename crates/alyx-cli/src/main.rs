@@ -64,12 +64,14 @@ fn parse_command(args: &[String]) -> Command {
                     if let Ok(port) = value.parse::<u16>() {
                         (
                             port,
-                            args
-                                .get(2)
+                            args.get(2)
                                 .map_or_else(|| PathBuf::from("dist"), PathBuf::from),
                         )
                     } else {
-                        let port = args.get(2).and_then(|value| value.parse::<u16>().ok()).unwrap_or(3000);
+                        let port = args
+                            .get(2)
+                            .and_then(|value| value.parse::<u16>().ok())
+                            .unwrap_or(3000);
                         (port, PathBuf::from(value))
                     }
                 }

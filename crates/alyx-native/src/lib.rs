@@ -519,9 +519,16 @@ mod tests {
             },
         );
         let mut renderer = MemoryRenderer::default();
+        let output = runtime.compile_frame().expect("compiled");
+        let focus_target = output
+            .ep
+            .hit_areas
+            .iter()
+            .find(|area| area.event_type == EventType::Focus)
+            .expect("focus handler");
         let mut events = SequenceEventLoop::new(vec![
-            NativeEvent::Focus(0, 0),
-            NativeEvent::Blur(0, 0),
+            NativeEvent::Focus(focus_target.node_id.0, focus_target.element_id.0),
+            NativeEvent::Blur(focus_target.node_id.0, focus_target.element_id.0),
             NativeEvent::KeyboardUp("Escape".to_string()),
         ]);
 

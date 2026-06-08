@@ -1,6 +1,7 @@
-use alyx_core::{ir::Size, runtime::HeadlessRuntime};
-use alyx_core::widgets::*;
+use alyx_core::ir::{Align, FlexDirection, FlexLayout, Justify, Layout, Padding};
 use alyx_core::runtime::App;
+use alyx_core::widgets::*;
+use alyx_core::{ir::Size, runtime::HeadlessRuntime};
 use alyx_executor::MemoryRenderer;
 
 #[derive(Clone)]
@@ -9,7 +10,13 @@ enum Msg {
 }
 
 fn main() {
-    let mut runtime = HeadlessRuntime::new(WebCounterApp, Size { width: 320.0, height: 120.0 });
+    let mut runtime = HeadlessRuntime::new(
+        WebCounterApp,
+        Size {
+            width: 320.0,
+            height: 120.0,
+        },
+    );
     let mut renderer = MemoryRenderer::default();
     runtime.step(&mut renderer);
 }
@@ -24,7 +31,11 @@ impl App for WebCounterApp {
         0
     }
 
-    fn update(&self, state: &mut Self::State, message: Self::Message) -> Vec<alyx_core::runtime::Command<Self::Message>> {
+    fn update(
+        &self,
+        state: &mut Self::State,
+        message: Self::Message,
+    ) -> Vec<alyx_core::runtime::Command<Self::Message>> {
         match message {
             Msg::Increment => {
                 *state += 1;
@@ -42,17 +53,17 @@ impl App for WebCounterApp {
                     on_click: Some(Msg::Increment),
                 }),
             ],
-            layout: alyx_ir::Layout::Flex(alyx_ir::FlexLayout {
-                direction: alyx_ir::FlexDirection::Column,
+            layout: Layout::Flex(FlexLayout {
+                direction: FlexDirection::Column,
                 gap: 10.0,
-                padding: alyx_ir::Padding {
+                padding: Padding {
                     left: 12.0,
                     top: 10.0,
                     right: 12.0,
                     bottom: 10.0,
                 },
-                align: alyx_ir::Align::Start,
-                justify: alyx_ir::Justify::Start,
+                align: Align::Start,
+                justify: Justify::Start,
             }),
         })
         .into_ir()
