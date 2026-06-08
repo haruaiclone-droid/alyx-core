@@ -124,7 +124,8 @@ fn write_runtime_wasm(output_dir: &Path) -> CliResult<()> {
         .status();
 
     let output_wasm = output_dir.join(APP_WASM_NAME);
-    let write_placeholder = || {
+    let write_placeholder = |reason: String| {
+        eprintln!("warning: runtime wasm build unavailable ({reason}), writing fallback app.wasm");
         std::fs::write(&output_wasm, &RUNTIME_PLACEHOLDER_WASM)
             .map(|_| ())
             .map_err(|error| {
@@ -134,10 +135,10 @@ fn write_runtime_wasm(output_dir: &Path) -> CliResult<()> {
     };
 
     let Ok(status) = status else {
-        return write_placeholder();
+        return write_placeholder("cargo command invocation failed".to_string());
     };
     if !status.success() {
-        return write_placeholder();
+        return write_placeholder(format!("cargo build exited with status {status}"));
     }
 
     let built_wasm = workspace_root
@@ -149,9 +150,9 @@ fn write_runtime_wasm(output_dir: &Path) -> CliResult<()> {
 
     let copied = std::fs::copy(&built_wasm, &output_wasm);
     match copied {
-        Ok(0) => write_placeholder(),
+        Ok(0) => write_placeholder("copied runtime asset was empty".to_string()),
         Ok(_) => Ok(()),
-        Err(_) => write_placeholder(),
+        Err(error) => write_placeholder(format!("failed to copy runtime artifact: {error}")),
     }
 }
 
