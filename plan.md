@@ -130,6 +130,8 @@
   - `crates/alyx-native/examples/native.rs`
   - `crates/alyx-native/examples/native_pixels.rs`
   - `crates/alyx-native/examples/native_wgpu.rs`
+  - `examples/hello.rs`
+  - `examples/layout.rs`
 - Completion criteria:
   - Replaced button construction is using `button("label").on_click(msg)` (or equivalent helper use) in updated sample code.
   - No `ButtonWidget::text(..., ...)` remains in these target files.
