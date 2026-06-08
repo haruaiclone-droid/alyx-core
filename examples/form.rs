@@ -1,4 +1,3 @@
-use alyx_core::ir::{Align, FlexDirection, FlexLayout, Justify, Layout, Padding};
 use alyx_core::runtime::HeadlessRuntime;
 use alyx_core::{ir::Size, runtime::App, widgets::TextInputWidget, widgets::*};
 use alyx_executor::MemoryRenderer;
@@ -54,36 +53,27 @@ impl App for FormApp {
     fn view(&self, state: &Self::State) -> alyx_core::ir::IrNode<Self::Message> {
         let terms = if *state { "accepted" } else { "not accepted" };
 
-        Widget::Container(ContainerWidget {
-            children: vec![
-                Widget::Text(TextWidget::new("Registration").size(220.0, 24.0)),
-                Widget::TextInput(
-                    TextInputWidget::new("", Some(Msg::ChangeName)).placeholder("Your name"),
-                ),
-                Widget::Spacer {
-                    width: 0.0,
-                    height: 8.0,
-                },
-                Widget::Checkbox(CheckboxWidget::new(
-                    format!("Terms {terms}"),
-                    *state,
-                    Some(Msg::ToggleTerms),
-                )),
-                Widget::Spacer {
-                    width: 0.0,
-                    height: 8.0,
-                },
-                button("submit").on_click(Msg::Submit),
-            ],
-            layout: Layout::Flex(FlexLayout {
-                direction: FlexDirection::Column,
-                gap: 8.0,
-                padding: Padding::default(),
-                align: Align::Start,
-                justify: Justify::Start,
-            }),
-        })
+        column::<Msg>([
+            Widget::Text(TextWidget::new("Registration").size(220.0, 24.0)),
+            Widget::TextInput(
+                TextInputWidget::new("", Some(Msg::ChangeName)).placeholder("Your name"),
+            ),
+            Widget::Spacer {
+                width: 0.0,
+                height: 8.0,
+            },
+            Widget::Checkbox(CheckboxWidget::new(
+                format!("Terms {terms}"),
+                *state,
+                Some(Msg::ToggleTerms),
+            )),
+            Widget::Spacer {
+                width: 0.0,
+                height: 8.0,
+            },
+            button("submit").on_click(Msg::Submit),
+        ])
+        .gap(8.0)
         .into_ir()
     }
 }
-

@@ -1,4 +1,4 @@
-use alyx_core::ir::{Align, FlexDirection, FlexLayout, ImageSource, Justify, Layout, Padding};
+use alyx_core::ir::ImageSource;
 use alyx_core::runtime::HeadlessRuntime;
 use alyx_core::{ir::Size, runtime::App, widgets::*};
 use alyx_executor::MemoryRenderer;
@@ -39,25 +39,16 @@ impl App for ImageDemo {
     }
 
     fn view(&self, _state: &Self::State) -> alyx_core::ir::IrNode<Self::Message> {
-        Widget::Container(ContainerWidget {
-            children: vec![
-                Widget::Text(TextWidget::new("logo preview").size(120.0, 24.0)),
-                Widget::Image(
-                    ImageWidget::new(ImageSource::Url("https://example.com/logo.png".to_string()))
-                        .size(128.0, 64.0),
-                ),
-                Widget::Link(LinkWidget::new("open website", "https://example.com", None)),
-                button("reset").on_click(Msg::Reset),
-            ],
-            layout: Layout::Flex(FlexLayout {
-                direction: FlexDirection::Column,
-                gap: 6.0,
-                padding: Padding::default(),
-                align: Align::Start,
-                justify: Justify::Start,
-            }),
-        })
+        column::<Msg>([
+            Widget::Text(TextWidget::new("logo preview").size(120.0, 24.0)),
+            Widget::Image(
+                ImageWidget::new(ImageSource::Url("https://example.com/logo.png".to_string()))
+                    .size(128.0, 64.0),
+            ),
+            Widget::Link(LinkWidget::new("open website", "https://example.com", None)),
+            button("reset").on_click(Msg::Reset),
+        ])
+        .gap(6.0)
         .into_ir()
     }
 }
-

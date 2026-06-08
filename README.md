@@ -44,7 +44,7 @@ This repository now contains a one-PR implementation pass that adds:
 ## Quick start
 
 ```rust
-use alyx_core::{ir::*, runtime::App, widgets::*, runtime::HeadlessRuntime};
+use alyx_core::{runtime::App, runtime::HeadlessRuntime, widgets::*};
 use alyx_executor::MemoryRenderer;
 
 #[derive(Clone)]
@@ -72,24 +72,12 @@ impl App for DemoApp {
     }
 
     fn view(&self, state: &Self::State) -> alyx_core::ir::IrNode<Self::Message> {
-        Widget::Container(ContainerWidget {
-            children: vec![
-                Widget::Text(TextWidget::new(format!("count: {state}")).size(120.0, 24.0)),
-                button("increment").on_click(Msg::Increment),
-            ],
-            layout: alyx_ir::Layout::Flex(alyx_ir::FlexLayout {
-                direction: alyx_ir::FlexDirection::Column,
-                gap: 8.0,
-                padding: alyx_ir::Padding {
-                    left: 12.0,
-                    top: 12.0,
-                    right: 12.0,
-                    bottom: 12.0,
-                },
-                align: alyx_ir::Align::Start,
-                justify: alyx_ir::Justify::Start,
-            }),
-        })
+        column::<Msg>([
+            Widget::Text(text(format!("count: {state}")).size(120.0, 24.0)),
+            button("increment").on_click(Msg::Increment),
+        ])
+        .padding(12.0, 12.0, 12.0, 12.0)
+        .gap(8.0)
         .into_ir()
     }
 }

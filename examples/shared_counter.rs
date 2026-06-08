@@ -1,6 +1,5 @@
 use alyx_core::{
     ir::IrNode,
-    ir::{Align, FlexDirection, FlexLayout, Justify, Layout, Padding},
     runtime::{App, Command},
     widgets::*,
 };
@@ -27,33 +26,13 @@ fn button_with_label(msg: Msg, label: &str) -> Widget<Msg> {
 pub fn counter_ui(state: &u32) -> IrNode<Msg> {
     let count_text = Widget::Text(TextWidget::new(format!("count: {state}")).size(120.0, 24.0));
 
-    Widget::Container(ContainerWidget {
-        children: vec![
-            count_text,
-            Widget::Spacer {
-                width: 0.0,
-                height: 8.0,
-            },
-            button_with_label(Msg::Increment, "+"),
-            Widget::Spacer {
-                width: 0.0,
-                height: 8.0,
-            },
-            button_with_label(Msg::Reset, "reset"),
-        ],
-        layout: Layout::Flex(FlexLayout {
-            direction: FlexDirection::Column,
-            gap: 6.0,
-            padding: Padding {
-                left: 8.0,
-                top: 8.0,
-                right: 8.0,
-                bottom: 8.0,
-            },
-            align: Align::Start,
-            justify: Justify::Start,
-        }),
-    })
+    column::<Msg>([
+        count_text,
+        button_with_label(Msg::Increment, "+"),
+        button_with_label(Msg::Reset, "reset"),
+    ])
+    .gap(8.0)
+    .padding(8.0, 8.0, 8.0, 8.0)
     .into_ir()
 }
 

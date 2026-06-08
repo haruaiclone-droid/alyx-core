@@ -1,7 +1,6 @@
 use std::path::PathBuf;
 
-use alyx_core::ir::Justify;
-use alyx_core::ir::{Align, FlexDirection, FlexLayout, Layout, Padding, Size};
+use alyx_core::ir::Size;
 use alyx_core::{host::HostOptions, host::build_web, host::serve_http, widgets::*};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -32,18 +31,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 fn app_ui() -> alyx_core::ir::IrNode<()> {
-    Widget::Container(ContainerWidget {
-        children: vec![
-            Widget::Text(TextWidget::new("Static export").size(160.0, 24.0)),
-            Widget::Text(TextWidget::new("Alyx host build preview").size(220.0, 18.0)),
-        ],
-        layout: Layout::Flex(FlexLayout {
-            direction: FlexDirection::Column,
-            gap: 8.0,
-            padding: Padding::default(),
-            align: Align::Start,
-            justify: Justify::Start,
-        }),
-    })
+    column::<()>([
+        Widget::Text(TextWidget::new("Static export").size(160.0, 24.0)),
+        Widget::Text(TextWidget::new("Alyx host build preview").size(220.0, 18.0)),
+    ])
+    .gap(8.0)
     .into_ir()
 }
