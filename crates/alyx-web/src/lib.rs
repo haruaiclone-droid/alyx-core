@@ -103,8 +103,10 @@ pub fn export_static_html_with_endpoint(
     format!(
         "<!doctype html>
 <html><head><meta charset=\"utf-8\"><title>{}</title></head>
-<body><main>{}</main></body>
+<body><main>{}</main>
+<script src=\"./alyx-loader.js\"></script>
 <script>{}</script>
+</body>
 </html>",
         title,
         rendering_plan_to_css_canvas(plan),

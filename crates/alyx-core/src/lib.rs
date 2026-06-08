@@ -34,6 +34,14 @@ pub mod runtime {
     pub use alyx_runtime::*;
 }
 
+pub fn run<A>(app: A, size: ir::Size) -> runtime::HeadlessRuntime<A>
+where
+    A: runtime::App,
+    A::Message: Send,
+{
+    runtime::HeadlessRuntime::new(app, size)
+}
+
 pub mod web {
     pub use alyx_web::*;
 }
@@ -51,6 +59,8 @@ pub mod native {
 }
 
 pub mod prelude {
+    pub use crate::run;
+    pub use crate::widgets::{button, text, row, column};
     pub use crate::compiler::compile;
     pub use crate::executor::{
         EventPlanExecutor, MemoryRenderer, RenderPlanExecutor, RenderingPlanExecutor,

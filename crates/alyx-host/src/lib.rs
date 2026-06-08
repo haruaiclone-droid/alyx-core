@@ -8,6 +8,11 @@ use alyx_plan::RenderingPlan;
 use alyx_runtime::{App, Command, HeadlessRuntime};
 use alyx_web::{browser_event_to_runtime, export_static_html_with_endpoint, parse_browser_event};
 
+const ALYX_MANIFEST_NAME: &str = "manifest.json";
+const ALYX_CANONICAL_MANIFEST_NAME: &str = "alyx-manifest.json";
+const ALYX_APP_WASM_NAME: &str = "app.wasm";
+const ALYX_LOADER_JS_NAME: &str = "alyx-loader.js";
+
 pub const DEFAULT_INDEX: &str = "index.html";
 
 #[derive(Debug)]
@@ -35,6 +40,8 @@ pub fn build_static_dist(plan: &RenderingPlan, output_dir: &Path) -> io::Result<
     let html = alyx_web::export_static_html(plan, "Alyx");
     let mut file = std::fs::File::create(&index)?;
     file.write_all(html.as_bytes())?;
+    write_default_loader_script(output_dir)?;
+    write_default_wasm(output_dir)?;
     write_manifest(output_dir)?;
     Ok(index)
 }
@@ -323,9 +330,12 @@ fn write_http_response(
 }
 
 fn write_manifest(output_dir: &Path) -> io::Result<()> {
-    let manifest_names = ["manifest.json", "alyx-manifest.json"];
-    let manifest_body =
-        r#"{"name":"Alyx App","start_url":"./index.html","display":"standalone"}"#;
+    let manifest_names = [ALYX_MANIFEST_NAME, ALYX_CANONICAL_MANIFEST_NAME];
+    let manifest_body = format!(
+        "{{\"name\":\"Alyx App\",\"entry\":\"{}\",\"renderer\":\"canvas\",\"alyx_version\":\"{}\",\"assets\":[],\"start_url\":\"./index.html\",\"display\":\"standalone\"}}",
+        ALYX_APP_WASM_NAME,
+        env!("CARGO_PKG_VERSION")
+    );
     for name in manifest_names {
         let manifest = output_dir.join(name);
         if let Some(parent) = manifest.parent() {
@@ -344,8 +354,44 @@ fn build_static_dist_with_bridge(plan: &RenderingPlan, output_dir: &Path) -> io:
     let html = export_static_html_with_endpoint(plan, "Alyx", "/__alyx_event");
     let mut file = std::fs::File::create(&index)?;
     file.write_all(html.as_bytes())?;
+    write_default_loader_script(output_dir)?;
+    write_default_wasm(output_dir)?;
     write_manifest(output_dir)?;
     Ok(index)
+}
+
+fn write_default_loader_script(output_dir: &Path) -> io::Result<()> {
+    let loader = output_dir.join(ALYX_LOADER_JS_NAME);
+    if !loader.exists() {
+        let script = r#"(function (global) {
+  var state = {
+    endpoint: "/__alyx_event",
+    version: "placeholder",
+  };
+
+  function init(endpoint) {
+    state.endpoint = endpoint || state.endpoint;
+    console.info("Alyx loader initialized", state);
+    return state;
+  }
+
+  global.alyxLoader = {
+    init: init,
+    state: state,
+  };
+})(typeof window !== "undefined" ? window : globalThis);"#;
+        std::fs::write(loader, script)?;
+    }
+    Ok(())
+}
+
+fn write_default_wasm(output_dir: &Path) -> io::Result<()> {
+    let wasm = output_dir.join(ALYX_APP_WASM_NAME);
+    if !wasm.exists() {
+        let data = [0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00];
+        std::fs::write(wasm, data)?;
+    }
+    Ok(())
 }
 
 fn read_http_request(stream: &mut TcpStream) -> io::Result<(String, Vec<u8>)> {
@@ -444,6 +490,7 @@ fn content_type_for(path: &Path) -> &'static str {
         "js" => "application/javascript; charset=utf-8",
         "css" => "text/css; charset=utf-8",
         "json" => "application/json; charset=utf-8",
+        "wasm" => "application/wasm",
         "png" => "image/png",
         "jpg" | "jpeg" => "image/jpeg",
         "svg" => "image/svg+xml",
@@ -482,5 +529,42 @@ mod tests {
             content_type_for(Path::new("foo.bin")),
             "application/octet-stream"
         );
+        assert_eq!(
+            content_type_for(Path::new("foo.wasm")),
+            "application/wasm"
+        );
+    }
+
+    #[test]
+    fn build_static_dist_writes_expected_artifacts() {
+        use std::fs;
+        use std::time::{SystemTime, UNIX_EPOCH};
+        let now = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .expect("time")
+            .as_nanos();
+        let output_dir = std::env::temp_dir().join(format!("alyx-host-static-{now}"));
+
+        let output = crate::build_static_dist(
+            &alyx_plan::RenderingPlan {
+                nodes: vec![],
+                accessibility: alyx_plan::AccessibilityPlan { entries: vec![] },
+            },
+            &output_dir,
+        )
+        .expect("build");
+
+        assert!(output.exists());
+        assert!(output_dir.join(ALYX_APP_WASM_NAME).is_file());
+        assert!(output_dir.join(ALYX_LOADER_JS_NAME).is_file());
+        assert!(output_dir.join(ALYX_MANIFEST_NAME).is_file());
+        assert!(output_dir.join(ALYX_CANONICAL_MANIFEST_NAME).is_file());
+
+        let manifest = fs::read_to_string(output_dir.join(ALYX_CANONICAL_MANIFEST_NAME))
+            .expect("canonical manifest");
+        assert!(manifest.contains(r#""entry":"app.wasm""#));
+        assert!(manifest.contains("\"renderer\":\"canvas\""));
+
+        let _ = fs::remove_dir_all(output_dir);
     }
 }

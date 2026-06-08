@@ -29,6 +29,16 @@ This repository now contains a one-PR implementation pass that adds:
 8. Documentation set for architecture and workflows
 9. Expanded examples (hello/counter/layout/web_counter/form/image/static_export/nested_layout/accessibility_focus)
 
+## Static web bundle contract
+
+`alyx-host` build artifacts use a fixed file contract for deployment:
+
+- `index.html`
+- `manifest.json`
+- `alyx-manifest.json`
+- `app.wasm`
+- `alyx-loader.js`
+
 ## Quick start
 
 ```rust

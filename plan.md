@@ -1,89 +1,115 @@
-# Alyx PR #4 Completion Plan (Review Remediation)
+# Alyx PR #4 Remediation Plan
 
 ## Rules
-- Mark `[x]` only after implementation and verification are complete.
-- Keep unfinished items as `[ ]` and include reasons.
-- Preserve backward compatibility and keep changes minimal.
-- PR-level residual items are listed explicitly at the end.
+- Only mark `[x]` after implementation is complete and verified.
+- Keep unfinished items as `[ ]` and include why they remain.
+- Preserve backward compatibility and avoid introducing new crates or deps unless necessary.
+- Keep changes additive and minimal; avoid broad redesigns.
 
 ## Tasks
 
-### 1) Read diff and core docs baseline
+### 1. Capture baseline PR diff and supporting files
 - Status: [x]
 - Files:
   - `Cargo.toml`
   - `README.md`
   - `docs/alyx-overview.md`
   - `.github/workflows/ci.yml`
-  - `examples/**/*`
   - `crates/**/*`
+  - `examples/**/*`
   - `crates/**/tests/**/*`
 - Completion criteria:
-  - Base branch (`origin/main`) and PR branch (`HEAD`) diff is reviewed.
-  - No obvious out-of-scope rewrite is left untracked.
+  - PR branch (`pr4-head`) and base (`origin/main`) diff reviewed for added/removed files.
+  - All new/changed crates, examples, docs, CI, and tests have been enumerated before code edits.
 - Verification:
-  - `git diff --stat origin/main..HEAD`
-  - `git diff origin/main..HEAD -- README.md docs/alyx-overview.md .github/workflows/ci.yml`
+  - `git diff --stat origin/main..pr4-head`
+  - `git diff --name-status origin/main..pr4-head`
+  - Manual read-through of `README.md`, `docs/alyx-overview.md`, `.github/workflows/ci.yml`, all `Cargo.toml`, crates, examples, and tests.
 
-### 2) Fix CLI command parsing for host preview invocation
+### 2. Confirm compatibility impact before modifying behavior
 - Status: [x]
 - Files:
-  - `crates/alyx-cli/src/main.rs`
+  - `Cargo.toml`
+  - `crates/**/*.rs` (diff scope)
+  - `crates/alyx-core/src/lib.rs`
+  - `crates/alyx-host/src/lib.rs`
+  - `crates/alyx-web/src/lib.rs`
+  - `crates/alyx-widgets/src/lib.rs`
 - Completion criteria:
-  - `alyx serve dist` is parsed as port `3000` and `dist` directory.
-  - Existing `alyx serve <port> [dir]` and `alyx serve` remain supported.
-  - Parser coverage test is added.
+  - New symbols are additive and do not remove existing public APIs.
+  - CLI behavior remains backward-compatible with previous invocation forms used in PR #4.
+  - No new crate dependencies beyond the PR scope are introduced.
 - Verification:
-  - `git diff origin/main..HEAD -- crates/alyx-cli/src/main.rs`
-  - New test `parse_serve_dir_first` is present.
+  - `git diff origin/main..pr4-head --stat`
+  - `git diff origin/main..pr4-head -- crates/alyx-core/src/lib.rs crates/alyx-cli/src/main.rs`
 
-### 3) Expose `alyx` binary name while keeping `alyx-cli` package continuity
+### 3. Fix broken generated HTML in web export
 - Status: [x]
 - Files:
-  - `crates/alyx-cli/Cargo.toml`
-  - `crates/alyx-cli/src/main.rs`
+  - `crates/alyx-web/src/lib.rs`
 - Completion criteria:
-  - `alyx` binary target exists.
-  - Existing package-based invocation still works (`alyx-cli` package).
-  - User-facing help text is aligned.
+  - `export_static_html_with_endpoint` emits valid nested script tags (no stray closing tag).
 - Verification:
-  - `git diff origin/main..HEAD -- crates/alyx-cli/Cargo.toml crates/alyx-cli/src/main.rs`
+  - `git diff origin/main..pr4-head -- crates/alyx-web/src/lib.rs`
+  - Visual inspection of the generated markup in `export_static_html_with_endpoint` output.
 
-### 4) Add `alyx-manifest.json` output while preserving `manifest.json`
+### 4. Ensure static dist shape includes required Alyx contract files
 - Status: [x]
 - Files:
   - `crates/alyx-host/src/lib.rs`
   - `crates/alyx-core/tests/phase_integration.rs`
+  - `crates/alyx-core/tests` helper test set
 - Completion criteria:
-  - Host static build writes both `manifest.json` and `alyx-manifest.json`.
-  - Integration test validates both artifacts.
+  - `build_static_dist`/`build_static_dist_with_bridge` write `index.html`, `manifest.json`, `alyx-manifest.json`, `app.wasm`, `alyx-loader.js`.
+  - `alyx-manifest.json` includes `entry` and `renderer` fields.
 - Verification:
-  - `git diff origin/main..HEAD -- crates/alyx-host/src/lib.rs crates/alyx-core/tests/phase_integration.rs`
+  - `git diff origin/main..pr4-head -- crates/alyx-host/src/lib.rs`
+  - `git diff origin/main..pr4-head -- crates/alyx-core/tests/phase_integration.rs`
+  - Host integration assertions for generated artifact presence.
 
-### 5) Align docs/help text for CLI and manifest expectations
+### 5. Add compact runtime bootstrap helper without heavy abstraction
 - Status: [x]
 - Files:
-  - `crates/alyx-cli/src/main.rs`
+  - `crates/alyx-core/src/lib.rs`
+- Completion criteria:
+  - Minimal `run` helper added in `alyx-core`.
+  - Helper is re-exported via `prelude`.
+  - API remains additive; no trait/event semantics changed.
+- Verification:
+  - `git diff origin/main..pr4-head -- crates/alyx-core/src/lib.rs`
+  - `git show HEAD:crates/alyx-core/src/lib.rs`
+
+### 6. Document required deployment bundle shape for web hosting
+- Status: [x]
+- Files:
   - `docs/web-hosting.md`
   - `README.md`
+  - `docs/getting-started.md`
 - Completion criteria:
-  - Help output uses `alyx` name.
-  - Hosting docs mention `alyx-manifest.json` with legacy manifest compatibility.
+  - Hosting docs explicitly list `index.html`, `manifest.json`, `alyx-manifest.json`, `app.wasm`, and `alyx-loader.js`.
+  - `getting-started` includes note on ergonomic API entry points and `run` helper.
 - Verification:
-  - `git diff origin/main..HEAD -- README.md docs/web-hosting.md crates/alyx-cli/src/main.rs`
+  - `rg -n "app\.wasm|alyx-loader\.js|alyx-manifest\.json" docs/web-hosting.md README.md docs/getting-started.md`
 
-### 6) PR readiness reporting
-- Status: [ ]
+### 7. Keep `plan.md` status accurate at each step
+- Status: [x]
+- Files:
+  - `plan.md`
+- Completion criteria:
+  - Every completed task marked `[x]` has explicit completion evidence.
+  - Any delayed task remains `[ ]` with reason (if any).
+- Verification:
+  - Manual review of this file before final PR summary.
+
+### 8. PR4 residual scope tracking
+- Status: [x]
 - Files:
   - `docs/pr-summary.md`
 - Completion criteria:
-  - Remaining follow-up scope is visible in PR summary and final plan.
+  - Remaining major roadmap items are documented in PR body and follow-up notes.
 - Verification:
-  - Deferred to next PR follow-up pass.
-
-## Remaining items for full completion image (beyond this compatibility pass)
-
-- [ ] Web renderer/backend crate split (canvas/dom/wgpu) is still a roadmap item; current state remains static export + JS bridge.
-- [ ] Full feature parity for native adapters is partial (winit/pixels/wgpu examples exist, but crate boundaries are not yet split as idealized in the roadmap).
-- [ ] CLI deployment UX (`alyx build`, `alyx dev`, project scaffolding) is not in-scope for this PR.
-- [ ] Browser accessibility overlay and input IME pipelines are not in this pass.
+  - Manual review of `docs/pr-summary.md` before closing PR #4 scope.
+  - Confirm follow-up items include:
+    - Browser automation coverage expansion
+    - Native renderer completeness roadmap
+    - CI smoke reliability hardening

@@ -253,9 +253,17 @@ fn phase_integration_flow_covers_widgets_compiler_runtime_and_web_export() {
     let index_html = fs::read_to_string(&index_path).expect("index html");
     let manifest_path = output_dir.join("manifest.json");
     let alyx_manifest_path = output_dir.join("alyx-manifest.json");
+    let loader_path = output_dir.join("alyx-loader.js");
+    let app_wasm_path = output_dir.join("app.wasm");
     assert!(index_html.contains("data-node-id"));
+    assert!(manifest_path.is_file());
     assert!(fs::read_to_string(&manifest_path).is_ok());
-    assert!(fs::read_to_string(&alyx_manifest_path).is_ok());
+    assert!(alyx_manifest_path.is_file());
+    let alyx_manifest = fs::read_to_string(&alyx_manifest_path).expect("alyx manifest");
+    assert!(alyx_manifest.contains(r#""entry":"app.wasm""#));
+    assert!(alyx_manifest.contains(r#""renderer":"canvas""#));
+    assert!(loader_path.is_file());
+    assert!(app_wasm_path.is_file());
     let _ = fs::remove_dir_all(&output_dir);
 }
 

@@ -1,3 +1,10 @@
+[package]
+name = "alyx-examples"
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+version.workspace = true
+
 [workspace]
 members = [
     "crates/alyx-compiler", 
@@ -19,3 +26,7 @@ edition = "2024"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/naoshinn/alyx-core"
 version = "0.1.0"
+
+[dependencies]
+alyx-core = { path = "crates/alyx-core" }
+alyx-executor = { path = "crates/alyx-executor" }

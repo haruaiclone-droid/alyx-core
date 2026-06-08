@@ -3,9 +3,41 @@ use alyx_ir::{
     Image, ImageSource, ImageStyle, IrNode, Justify, Layout, Padding, Pane, Rect, Role, Size, Text,
     TextStyle,
 };
+use std::marker::PhantomData;
 
 pub trait IntoIr<Msg> {
     fn into_ir(self) -> IrNode<Msg>;
+}
+
+#[derive(Clone, Debug)]
+pub struct ButtonBuilder<Msg> {
+    label: String,
+    _marker: PhantomData<Msg>,
+}
+
+impl<Msg> ButtonBuilder<Msg> {
+    pub fn on_click(self, msg: Msg) -> Widget<Msg> {
+        Widget::Button(ButtonWidget::text(self.label, msg))
+    }
+}
+
+pub fn button<Msg>(label: impl Into<String>) -> ButtonBuilder<Msg> {
+    ButtonBuilder {
+        label: label.into(),
+        _marker: PhantomData,
+    }
+}
+
+pub fn text(content: impl Into<String>) -> TextWidget {
+    TextWidget::new(content)
+}
+
+pub fn row<Msg>(children: impl IntoIterator<Item = Widget<Msg>>) -> Row<Msg> {
+    Row::new(children.into_iter().collect())
+}
+
+pub fn column<Msg>(children: impl IntoIterator<Item = Widget<Msg>>) -> Column<Msg> {
+    Column::new(children.into_iter().collect())
 }
 
 #[derive(Clone, Debug)]
@@ -99,12 +131,14 @@ pub struct ButtonWidget<Msg> {
 pub struct Row<Msg> {
     pub children: Vec<Widget<Msg>>,
     pub gap: f32,
+    pub padding: Padding,
 }
 
 #[derive(Clone, Debug)]
 pub struct Column<Msg> {
     pub children: Vec<Widget<Msg>>,
     pub gap: f32,
+    pub padding: Padding,
 }
 
 #[derive(Clone, Debug)]
@@ -275,23 +309,81 @@ impl<Msg: Clone> ButtonWidget<Msg> {
 
 impl<Msg: Clone> Row<Msg> {
     pub fn new(children: Vec<Widget<Msg>>) -> Self {
-        Self { children, gap: 0.0 }
+        Self {
+            children,
+            gap: 0.0,
+            padding: Padding::default(),
+        }
     }
 
     pub fn gap(mut self, gap: f32) -> Self {
         self.gap = gap;
+        self
+    }
+
+    pub fn padding(mut self, left: f32, top: f32, right: f32, bottom: f32) -> Self {
+        self.padding = Padding {
+            left,
+            top,
+            right,
+            bottom,
+        };
         self
     }
 }
 
 impl<Msg: Clone> Column<Msg> {
     pub fn new(children: Vec<Widget<Msg>>) -> Self {
-        Self { children, gap: 0.0 }
+        Self {
+            children,
+            gap: 0.0,
+            padding: Padding::default(),
+        }
     }
 
     pub fn gap(mut self, gap: f32) -> Self {
         self.gap = gap;
         self
+    }
+
+    pub fn padding(mut self, left: f32, top: f32, right: f32, bottom: f32) -> Self {
+        self.padding = Padding {
+            left,
+            top,
+            right,
+            bottom,
+        };
+        self
+    }
+}
+
+impl<Msg: Clone> From<Row<Msg>> for Widget<Msg> {
+    fn from(row: Row<Msg>) -> Self {
+        Widget::Container(ContainerWidget {
+            children: row.children,
+            layout: Layout::Flex(FlexLayout {
+                direction: FlexDirection::Row,
+                gap: row.gap,
+                padding: row.padding,
+                align: Align::Start,
+                justify: Justify::Start,
+            }),
+        })
+    }
+}
+
+impl<Msg: Clone> From<Column<Msg>> for Widget<Msg> {
+    fn from(column: Column<Msg>) -> Self {
+        Widget::Container(ContainerWidget {
+            children: column.children,
+            layout: Layout::Flex(FlexLayout {
+                direction: FlexDirection::Column,
+                gap: column.gap,
+                padding: column.padding,
+                align: Align::Start,
+                justify: Justify::Start,
+            }),
+        })
     }
 }
 
@@ -579,7 +671,7 @@ impl<Msg: Clone> IntoIr<Msg> for Row<Msg> {
             layout: Layout::Flex(FlexLayout {
                 direction: FlexDirection::Row,
                 gap: self.gap,
-                padding: Padding::default(),
+                padding: self.padding,
                 align: Align::Start,
                 justify: Justify::Start,
             }),
@@ -594,7 +686,7 @@ impl<Msg: Clone> IntoIr<Msg> for Column<Msg> {
             layout: Layout::Flex(FlexLayout {
                 direction: FlexDirection::Column,
                 gap: self.gap,
-                padding: Padding::default(),
+                padding: self.padding,
                 align: Align::Start,
                 justify: Justify::Start,
             }),

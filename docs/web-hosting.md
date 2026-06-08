@@ -14,7 +14,20 @@
 
 ## Deploying a static dist
 
-`build-web` writes a deployable static bundle to the destination directory (`index.html`, `manifest.json`, `alyx-manifest.json`, and `script` tags for event handling).
+`build-web` writes a deployable static bundle to the destination directory:
+
+- `index.html`
+- `manifest.json`
+- `alyx-manifest.json` (contains `entry` and `renderer` metadata)
+- `app.wasm`
+- `alyx-loader.js`
+
+Deployment output must include:
+
+- `index.html`
+- `manifest.json` and `alyx-manifest.json` (`entry` and `renderer` metadata are in `alyx-manifest.json`)
+- `app.wasm`
+- `alyx-loader.js`
 
 To deploy:
 

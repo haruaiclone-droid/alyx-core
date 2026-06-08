@@ -56,3 +56,21 @@ let mut renderer = MemoryRenderer::default();
 runtime.step(&mut renderer);
 ```
 
+## 5) Ergonomic core API entry points
+
+`alyx-core` also provides compact helpers through `prelude::*`:
+
+- `text("label")`
+- `button("label") -> ButtonBuilder`
+- `row([..])` and `column([..])`
+
+`run` is also available as a minimal convenience for building a runtime instance:
+
+```rust
+use alyx_core::prelude::{self, run, App};
+
+// returns a HeadlessRuntime without manually naming runtime types
+let _runtime = run(MyApp, alyx_core::ir::Size { width: 320.0, height: 120.0 });
+```
+
+If you prefer explicit control, keep using `HeadlessRuntime::new` directly.
