@@ -5,6 +5,7 @@ use alyx_ir::{
 };
 use alyx_plan::{EventType, NavigationAction, RpNode, RpText};
 use std::path::PathBuf;
+use std::rc::Rc;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 enum Msg {
@@ -429,4 +430,43 @@ fn compiles_link_navigation_plan() {
             .contains(&NavigationAction::NavigateTo("/guide".to_string()))
     );
     assert_eq!(output.ep.hit_areas.len(), 1);
+}
+
+#[test]
+fn compile_accepts_non_send_messages() {
+    let root = IrNode::HitArea(HitArea::new(
+        Layout::Flex(FlexLayout::row()),
+        IrNode::Text(Text {
+            content: "local-only".to_string(),
+            style: TextStyle {
+                font: Font {
+                    family: "Sans".to_string(),
+                },
+                size: 14.0,
+                color: Color {
+                    r: 0.0,
+                    g: 0.0,
+                    b: 0.0,
+                    a: 1.0,
+                },
+            },
+            size: Size {
+                width: 120.0,
+                height: 16.0,
+            },
+        }),
+        Some(Rc::new(7u8)),
+        Some(Rc::new(9u8)),
+    ));
+
+    let output = compile(
+        &root,
+        Size {
+            width: 320.0,
+            height: 80.0,
+        },
+    );
+
+    assert_eq!(output.ep.hit_areas.len(), 2);
+    assert_eq!(output.handlers.len(), 2);
 }

@@ -27,7 +27,7 @@ This repository now contains a one-PR implementation pass that adds:
 6. Web/static export and hosting helpers
 7. Native adapter traits and skeleton extension points
 8. Documentation set for architecture and workflows
-9. Expanded examples (hello/counter/layout/web_counter/form/image/static_export/nested_layout/accessibility_focus)
+9. Expanded examples (`hello`, `counter`, `layout`, `web_counter`, `form`, `image`, `static_export`, `shared_counter`)
 
 ## Static web bundle contract
 
@@ -167,7 +167,7 @@ The acceptance commands used in this PR scope are:
 - Run the native wgpu renderer example:
   - `cargo run --package alyx-native --example native_wgpu --features wgpu-backend`
 
-`Alyx` is now in a "single-PR comprehensive baseline" state, with follow-up blockers tracked separately in operational notes.
+`Alyx` is now in a single-PR foundation state, with follow-up blockers tracked separately in operational notes.
 
 ## License
 

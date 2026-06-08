@@ -44,7 +44,6 @@ pub enum Command<Msg> {
 impl<A> HeadlessRuntime<A>
 where
     A: App,
-    A::Message: Send,
 {
     pub fn new(app: A, viewport: Size) -> Self {
         let state = app.initial_state();
@@ -585,6 +584,7 @@ mod tests {
         Align, Color, Container, FlexDirection, FlexLayout, Font, HitArea, IrNode, Justify, Layout,
         Padding, Size, Text, TextStyle,
     };
+    use std::rc::Rc;
 
     #[derive(Clone)]
     enum Msg {
@@ -877,5 +877,74 @@ mod tests {
                 .dispatch_keyup_by_ids(999, 999, &mut renderer)
                 .is_none()
         );
+    }
+
+    #[derive(Clone)]
+    struct NonSendMsg(Rc<u8>);
+
+    struct NonSendRuntimeApp;
+
+    impl App for NonSendRuntimeApp {
+        type Message = NonSendMsg;
+        type State = u8;
+
+        fn initial_state(&self) -> Self::State {
+            0
+        }
+
+        fn update(
+            &self,
+            state: &mut Self::State,
+            message: Self::Message,
+        ) -> Vec<Command<Self::Message>> {
+            let _ = Rc::strong_count(&message.0);
+            *state += 1;
+            vec![Command::None]
+        }
+
+        fn view(&self, _state: &Self::State) -> IrNode<Self::Message> {
+            IrNode::HitArea(
+                HitArea::new(
+                    Layout::Flex(FlexLayout::row()),
+                    IrNode::Text(Text {
+                        content: "non-send".to_string(),
+                        style: TextStyle {
+                            font: Font {
+                                family: "mono".to_string(),
+                            },
+                            size: 10.0,
+                            color: Color {
+                                r: 0.0,
+                                g: 0.0,
+                                b: 0.0,
+                                a: 1.0,
+                            },
+                        },
+                        size: Size {
+                            width: 90.0,
+                            height: 20.0,
+                        },
+                    }),
+                    Some(NonSendMsg(Rc::new(1))),
+                    None,
+                )
+                .pointer_down(NonSendMsg(Rc::new(2))),
+            )
+        }
+    }
+
+    #[test]
+    fn runtime_accepts_non_send_messages() {
+        let mut runtime = HeadlessRuntime::new(
+            NonSendRuntimeApp,
+            Size {
+                width: 120.0,
+                height: 40.0,
+            },
+        );
+        let mut renderer = MemoryRenderer::default();
+        runtime.step(&mut renderer);
+        runtime.dispatch_pointer_down(10.0, 10.0, &mut renderer);
+        assert_eq!(runtime.state, Some(1));
     }
 }

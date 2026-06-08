@@ -37,7 +37,6 @@ pub mod runtime {
 pub fn run<A>(app: A, size: ir::Size) -> runtime::HeadlessRuntime<A>
 where
     A: runtime::App,
-    A::Message: Send,
 {
     runtime::HeadlessRuntime::new(app, size)
 }

@@ -13,7 +13,7 @@ pub(crate) fn compile_container<Msg>(
     context: &mut CompileContext<Msg>,
 ) -> Vec<RpNode>
 where
-    Msg: Clone + Send,
+    Msg: Clone,
 {
     let Layout::Flex(layout) = container.layout;
     let _ = node_id;

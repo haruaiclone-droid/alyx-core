@@ -95,7 +95,6 @@ impl NativeEventState {
     ) -> Option<alyx_runtime::Command<A::Message>>
     where
         A: alyx_runtime::App,
-        A::Message: Send,
         R: alyx_executor::RenderingPlanExecutor,
     {
         match event {
@@ -364,7 +363,6 @@ pub fn pump_native_events<A, R>(
 ) -> Option<alyx_runtime::Command<A::Message>>
 where
     A: alyx_runtime::App,
-    A::Message: Send,
     R: alyx_executor::RenderingPlanExecutor,
 {
     let mut event_state = NativeEventState::default();

@@ -1,43 +1,31 @@
-# Completion Checklist (single PR scope)
+# Completion Checklist (PR #4 Review Scope)
 
-This checklist maps the requested phases to implemented artifacts.
+## Implemented
+- [x] One-pass workspace stack added (IR, plan, compiler, runtime, executor, web, host, native, core).
+- [x] Web static dist generation and runtime-assisted local preview are present.
+- [x] Native examples for `native`, `native_pixels`, and `native_wgpu` are in place.
+- [x] Shared counter helper and counter/web counter flow are consolidated.
+- [x] Event coverage for pointer/keyboard/focus/submit paths in compiler/runtime.
+- [x] Static hosting contract documented (`index.html`, `manifest.json`, `alyx-manifest.json`, `app.wasm`, `alyx-loader.js`).
+- [x] `compile` no longer requires `Msg: Send` (review hardening).
+- [x] Regression test added for non-`Send` compile message types.
 
-## Implemented in this PR
+## Deferred / incomplete
+- [ ] Browser automation matrix (non-deterministic interaction assertions not in CI).
+- [ ] Native renderer parity and performance hardening.
+- [ ] CI reliability around long-running preview smoke and flaky environment windows.
+- [ ] Deep compatibility matrix for all historical consumer message patterns.
 
-- [x] Workspace and crate expansion for full stack layers.
-- [x] `alyx-ir` identity/accessibility additions.
-- [x] `alyx-widgets` API with `IntoIr` conversion.
-- [x] Compiler emitting `RenderingPlan` / `EventPlan` / `HandlerTable` with stable IDs.
-- [x] `alyx-runtime` `App` / `HeadlessRuntime` update loop.
-- [x] `alyx-executor` contracts (`RenderingPlanExecutor`, `EventPlanExecutor`) and helper renderers.
-- [x] Web helper exports / host static build and preview host pipeline.
-- [x] Runtime-integrated preview path (`serve_http_with_runtime`) for local event bridge.
-- [x] Native adapter traits and event loop demo scaffolding.
-- [x] Native examples for `native`, `native_pixels`, and `native_wgpu` features.
-- [x] Extended examples (`hello`, `counter`, `layout`, `web counter`, `nested layout`, `form`, `focus`, `image`, `static_export`).
-- [x] `alyx-core` top-level re-export surface update.
-- [x] Implementation docs and PR summary updates.
-- [x] Integration test coverage in `crates/alyx-core/tests/phase_integration.rs`.
-- [x] CI workflow definition and local CLI smoke pipeline.
-- [x] Event bridge coverage for pointer/keyboard/focus/submit/scroll/navigation paths.
-- [x] Keyboard activation fallback to click when explicit keydown handler is absent.
-- [x] Accessibility metadata export and ARIA attribute emission.
+## Evidence used in this review pass
+- Core implementation evidence: `crates/alyx-*`
+- Review-hardening evidence:
+  - `crates/alyx-compiler/src/layout.rs`
+  - `crates/alyx-compiler/tests/compile.rs`
+- PR-facing docs evidence:
+  - `README.md`
+  - `docs/implementation-notes.md`
+  - `docs/pr-summary.md`
+  - `docs/web-hosting.md`
 
-## Acceptance evidence
-
-- CI job definitions in `.github/workflows/ci.yml`.
-- Core implementation evidence in:
-  - `crates/alyx-core/src/lib.rs`
-  - `crates/alyx-runtime/src/lib.rs`
-  - `crates/alyx-host/src/lib.rs`
-  - `crates/alyx-web/src/lib.rs`
-  - `crates/alyx-native/src/lib.rs`
-  - `crates/alyx-executor/src/lib.rs`
-  - `crates/alyx-compiler/src/compile.rs`
-  - `crates/alyx-widgets/src/lib.rs`
-  - `crates/alyx-core/tests/phase_integration.rs`
-- Docs and examples in `docs/*` and `examples/*`.
-
-## Current status
-
-- Full command-level green status is intentionally sourced from CI runs, not local manual claims in this review pass.
+## Notes
+- This checklist is intentionally conservative; tasks left `[ ]` are explicitly deferred, not complete.

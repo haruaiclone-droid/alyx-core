@@ -9,7 +9,7 @@ use crate::layout::compile_container;
 
 pub fn compile<Msg>(root: &IrNode<Msg>, viewport: Size) -> CompilerOutput<Msg>
 where
-    Msg: Clone + Send,
+    Msg: Clone,
 {
     let mut context = CompileContext::new();
     let nodes = compile_to_rp(root, 0.0, 0.0, viewport, &mut context);
@@ -34,7 +34,7 @@ pub(crate) fn compile_to_rp<Msg>(
     context: &mut CompileContext<Msg>,
 ) -> Vec<RpNode>
 where
-    Msg: Clone + Send,
+    Msg: Clone,
 {
     let node_id = context.alloc_node_id();
     let mut rp_nodes = Vec::new();

@@ -1,229 +1,112 @@
-﻿# Alyx PR #4 Remediation Plan
+# Alyx PR #4 Remediation Plan
 
 ## Rules
-- Only mark `[x]` after implementation is complete and verified.
-- Keep unfinished items as `[ ]` and include why they remain.
-- Preserve backward compatibility and avoid introducing new crates or deps unless necessary.
-- Keep changes additive and minimal; avoid broad redesigns.
+- Only mark `[x]` after implementation and verification are complete.
+- Leave unfinished items as `[ ]` and include an explicit reason.
+- Prefer additive, minimal changes that preserve compatibility.
+- Keep `plan.md` aligned with code and PR notes at the end.
 
 ## Tasks
 
-### 1. Capture baseline PR diff and supporting files
+### 1. Baseline review and scope lock
 - Status: [x]
 - Files:
-  - `Cargo.toml`
   - `README.md`
   - `docs/alyx-overview.md`
-  - `.github/workflows/ci.yml`
-  - `crates/**/*`
+  - `root Cargo.toml`
+  - `crates/*/Cargo.toml`
+  - `crates/**/*` (diff scope)
   - `examples/**/*`
-  - `crates/**/tests/**/*`
+  - `crates/*/tests/**/*`
+  - `.github/workflows/ci.yml`
 - Completion criteria:
-  - PR branch (`pr4-head`) and base (`origin/main`) diff reviewed for added/removed files.
-  - All new/changed crates, examples, docs, CI, and tests have been enumerated before code edits.
+  - Required project files are reviewed before edits.
+  - No new crates or dependency families are introduced solely by this review pass.
 - Verification:
-  - `git diff --stat origin/main..pr4-head`
-  - `git diff --name-status origin/main..pr4-head`
-  - Manual read-through of `README.md`, `docs/alyx-overview.md`, `.github/workflows/ci.yml`, all `Cargo.toml`, crates, examples, and tests.
+  - `Get-Content -Raw README.md`
+  - `Get-Content -Raw docs/alyx-overview.md`
+  - `Get-ChildItem -Recurse -Filter Cargo.toml -File`
+  - `Get-Content -Raw .github/workflows/ci.yml`
 
-### 2. Confirm compatibility impact before modifying behavior
+### 2. Preserve PR #4 API compatibility while hardening
 - Status: [x]
 - Files:
-  - `Cargo.toml`
-  - `crates/**/*.rs` (diff scope)
   - `crates/alyx-core/src/lib.rs`
+  - `crates/alyx-runtime/src/lib.rs`
   - `crates/alyx-host/src/lib.rs`
   - `crates/alyx-web/src/lib.rs`
   - `crates/alyx-widgets/src/lib.rs`
 - Completion criteria:
-  - New symbols are additive and do not remove existing public APIs.
-  - CLI behavior remains backward-compatible with previous invocation forms used in PR #4.
-  - No new crate dependencies beyond the PR scope are introduced.
+  - New symbols remain additive.
 - Verification:
-  - `git diff origin/main..pr4-head --stat`
-  - `git diff origin/main..pr4-head -- crates/alyx-core/src/lib.rs crates/alyx-cli/src/main.rs`
+  - Manual review of exports/events/CLI entrypoints for changed behavior and public signatures.
 
-### 3. Fix broken generated HTML in web export
+### 3. Remove unnecessary compiler trait bound (`Msg: Send`)
 - Status: [x]
 - Files:
-  - `crates/alyx-web/src/lib.rs`
+  - `crates/alyx-compiler/src/layout.rs`
 - Completion criteria:
-  - `export_static_html_with_endpoint` emits valid nested script tags (no stray closing tag).
+  - `compile` path accepts message types that are `Clone` but not `Send`.
+  - Public API signature is not stricter than required.
 - Verification:
-  - `git diff origin/main..pr4-head -- crates/alyx-web/src/lib.rs`
-  - Visual inspection of the generated markup in `export_static_html_with_endpoint` output.
+  - `rg -n "Msg: Clone \\+ Send|where\\s*Msg: Clone \\+ Send" crates/alyx-compiler/src`
 
-### 4. Ensure static dist shape includes required Alyx contract files
+### 4. Add compiler regression test for non-Send message types
 - Status: [x]
 - Files:
+  - `crates/alyx-compiler/tests/compile.rs`
+- Completion criteria:
+  - Non-`Send` test message type compiles through `compile`.
+  - Hit area and handler table paths are exercised.
+- Verification:
+  - `cargo test -p alyx-compiler --test compile compile_accepts_non_send_messages`
+
+### 5. Normalize completion and PR-facing docs
+- Status: [x]
+- Files:
+  - `docs/completion-checklist.md`
+  - `README.md`
+- Completion criteria:
+  - Checklist and README only claim implemented items.
+  - Remaining follow-up topics are explicitly deferred.
+- Verification:
+  - Manual review of both documents after patch.
+
+### 6. Verify targeted compile/test evidence before merge handoff
+- Status: [x]
+- Files:
+  - `crates/alyx-compiler`
+- Completion criteria:
+  - Targeted test suite in compiler scope is green.
+  - No new warnings introduced by added test.
+- Verification:
+  - `cargo test -p alyx-compiler --test compile`
+
+### 8. Widen runtime/host/native public bounds to `Clone`-based message models
+- Status: [x]
+- Files:
+  - `crates/alyx-runtime/src/lib.rs`
   - `crates/alyx-host/src/lib.rs`
-  - `crates/alyx-core/tests/phase_integration.rs`
-  - `crates/alyx-core/tests` helper test set
-- Completion criteria:
-  - `build_static_dist`/`build_static_dist_with_bridge` write `index.html`, `manifest.json`, `alyx-manifest.json`, `app.wasm`, `alyx-loader.js`.
-  - `alyx-manifest.json` includes `entry` and `renderer` fields.
-- Verification:
-  - `git diff origin/main..pr4-head -- crates/alyx-host/src/lib.rs`
-  - `git diff origin/main..pr4-head -- crates/alyx-core/tests/phase_integration.rs`
-  - Host integration assertions for generated artifact presence.
-
-### 5. Add compact runtime bootstrap helper without heavy abstraction
-- Status: [x]
-- Files:
+  - `crates/alyx-native/src/lib.rs`
   - `crates/alyx-core/src/lib.rs`
 - Completion criteria:
-  - Minimal `run` helper added in `alyx-core`.
-  - Helper is re-exported via `prelude`.
-  - API remains additive; no trait/event semantics changed.
+  - Runtime, host, and native dispatch/public entrypoints no longer require `Msg: Send`.
+  - Cross-target message models can use non-`Send` payloads when threading is not involved.
 - Verification:
-  - `git diff origin/main..pr4-head -- crates/alyx-core/src/lib.rs`
-  - `git show HEAD:crates/alyx-core/src/lib.rs`
+  - `rg -n "A::Message: Send|Msg: Clone \\+ Send|Send\\b" crates/alyx-runtime/src crates/alyx-host/src crates/alyx-native/src crates/alyx-core/src`
+  - `cargo test -p alyx-runtime`
+  - `cargo test -p alyx-host`
+  - `cargo test -p alyx-native`
 
-### 6. Document required deployment bundle shape for web hosting
-- Status: [x]
-- Files:
-  - `docs/web-hosting.md`
-  - `README.md`
-  - `docs/getting-started.md`
-- Completion criteria:
-  - Hosting docs explicitly list `index.html`, `manifest.json`, `alyx-manifest.json`, `app.wasm`, and `alyx-loader.js`.
-  - `getting-started` includes note on ergonomic API entry points and `run` helper.
-- Verification:
-  - `rg -n "app\.wasm|alyx-loader\.js|alyx-manifest\.json" docs/web-hosting.md README.md docs/getting-started.md`
-
-### 7. Keep `plan.md` status accurate at each step
-- Status: [x]
-- Files:
-  - `plan.md`
-- Completion criteria:
-  - Every completed task marked `[x]` has explicit completion evidence.
-  - Any delayed task remains `[ ]` with reason (if any).
-- Verification:
-  - Manual review of this file before final PR summary.
-
-### 8. PR4 residual scope tracking
+### 7. Record residual PR scope (browser/native/CI depth)
 - Status: [x]
 - Files:
   - `docs/pr-summary.md`
-- Completion criteria:
-  - Remaining major roadmap items are documented in PR body and follow-up notes.
-- Verification:
-  - Manual review of `docs/pr-summary.md` before closing PR #4 scope.
-  - Confirm follow-up items include:
-    - Browser automation coverage expansion
-    - Native renderer completeness roadmap
-    - CI smoke reliability hardening
-
-### 9. Fix host runtime key-up dispatch routing
-- Status: [x]
-- Files:
-  - `crates/alyx-host/src/lib.rs`
-- Completion criteria:
-  - `serve_one_runtime` now routes `EventType::KeyUp` with valid `(node, element)` IDs through `dispatch_keyup_by_ids`.
-  - The coordinate fallback to `dispatch_keyup` remains for ID-less keyboard events.
-- Verification:
-  - Manual code review of the `EventType::KeyUp` branch in `crates/alyx-host/src/lib.rs` in this fix commit.
-
-### 10. Local verification command confirmation
-- Status: [x]
-- Files:
-  - `N/A (environment checks)`
-- Completion criteria:
-  - `cargo fmt --all -- --check`
-  - `cargo-clippy --workspace --all-targets --all-features -- -D warnings`
-  - `cargo test --workspace --all-features`
-  - `cargo build --workspace --all-features`
-- Verification:
-  - Execute the above commands locally and confirm pass.
-  - Additional required commands run in this pass:
-    - `cargo doc --workspace --no-deps --all-features`
-    - `rustup target add wasm32-unknown-unknown`
-    - `cargo build --workspace --target wasm32-unknown-unknown`
-    - `cargo run --package alyx-cli -- build-web dist`
-    - `target\\debug\\alyx.exe --help` (direct binary call because `cargo run` forward is inconsistent in this shell for `--help`)
-    - `cargo check --package alyx-native --example native --features winit-backend`
-    - `cargo check --package alyx-native --example native_pixels --features pixels-backend`
-    - `cargo check --package alyx-native --example native_wgpu --features wgpu-backend`
-  - `cargo test --workspace --all-features` currently completes successfully in this environment.
-
-### 11. Resolve workspace artifact/build warnings before PR merge (optional hardening)
-- Status: [x]
-- Files:
-  - `crates/alyx-cli/Cargo.toml`
-  - `crates/alyx-core/examples/`
-- Completion criteria:
-  - Remove duplicate binary target name warning:
-    - Keep one `alyx` binary target only; duplicate source mapping to a second bin should be avoided.
-    - Done in `crates/alyx-cli/Cargo.toml`: removed the redundant `alyx-cli` bin alias.
-  - Remove example output filename collisions between `alyx-core` and `alyx-examples` in the same workspace target directory.
-    - Done: moved shared demo logic to `examples/shared_counter.rs` and restored root `shared_counter` binary placeholder so workspace tests/examples continue to compile.
-  - CI should keep passing with warnings as either resolved or justified.
-- Verification:
-- `cargo test --workspace --all-features` runs warning-free for duplicate target output paths.
-- Confirm `cargo run --example counter` still resolves from root package examples.
-
-### 12. Align documentation with actual web/runtime behavior
-- Status: [x]
-- Files:
-  - `README.md`
-  - `docs/web-hosting.md`
   - `docs/implementation-notes.md`
 - Completion criteria:
-  - Static web bundle contract notes explicitly include `app.wasm` + `alyx-loader.js` contract.
-  - Notes accurately state that `app.wasm` is generated for preview delivery and that runtime-bridged interaction requires `build-web` + `run` behavior as implemented.
+  - Follow-up scope includes browser automation depth, native renderer hardening, and CI reliability.
+  - Completion claims avoid full-production-ready assertions.
 - Verification:
-  - Manual read-through of updated files for consistency and wording accuracy.
-
-### 13. Share counter sample app logic between headless and native examples
-- Status: [x]
-- Files:
-  - `examples/shared_counter.rs`
-  - `examples/counter.rs`
-  - `examples/web_counter.rs`
-  - `crates/alyx-native/examples/native_counter.rs`
-  - `crates/alyx-native/Cargo.toml`
-- Completion criteria:
-  - Counter sample behavior is defined in one shared module (`examples/shared_counter.rs`).
-  - Root `counter`, `web_counter`, and `alyx-native` `native_counter` examples construct their app from shared logic.
-  - Native example runs with existing `winit-backend` feature without changing existing runtime semantics.
-- Verification:
-  - `cargo check --manifest-path work/alyx-core/Cargo.toml --example counter`
-  - `cargo check --manifest-path work/alyx-core/Cargo.toml --example web_counter`
-  - `cargo check --manifest-path work/alyx-core/Cargo.toml --package alyx-native --example native_counter --features winit-backend`
-
-### 14. Provide runtime-backed interactive Web/Wasm delivery path for the same UI code
-- Status: [x]
-- Files:
-  - `Cargo.toml` (wasm target deps for examples)
-  - `crates/alyx-web/src/lib.rs`
-  - `crates/alyx-web/src/wasm.rs`
-  - `examples/web_counter.rs`
-- Completion criteria:
-  - Same `counter` application logic from `examples/shared_counter.rs` is used by wasm and non-wasm examples.
-  - Browser event bridge in generated html prefers a window callback (`window.__alyxHandleEvent`) when present.
-  - Wasm start path initializes `HeadlessRuntime<CounterApp>` with the DOM renderer and re-renders on parsed `BrowserEvent`.
-  - `build-web` attempts to embed a real `app.wasm` produced by the workspace shared wasm example and leaves a compatibility fallback when unavailable.
-- Verification:
-  - `cargo run --package alyx-cli -- build-web dist` が成功し、`dist/app.wasm` がWASMマジックヘッダ `00 61 73 6d` を持つこと。
-  - 実装変更: `crates/alyx-cli/src/main.rs` の `write_runtime_wasm` と `crates/alyx-web/Cargo.toml` の `alyx-executor` 追加。
-### 15. Keep plan/checklist aligned with post-fix status
-- Status: [x]
-- Files:
-  - `plan.md`
-- Completion criteria:
-  - Keep `[ ]` items incomplete with reason.
-  - Keep completed tasks only when verification commands pass.
-  - Final PR summary includes remaining non-complete tasks (none currently).
- - Verification:
-  - Manual review before final PR summary to ensure no stale unfinished items.
-
-### 16. Keep workspace examples compileable with shared helper file
-- Status: [x]
-- Files:
-  - `examples/shared_counter.rs`
-- Completion criteria:
-  - `examples/shared_counter.rs` is built as an example target without compile failure.
-  - Shared counter UI module is reusable by counter/web/native counter examples.
-- Verification:
-  - `cargo test --workspace --all-features`
-
+  - Manual review before PR draft completion.
+- Reason:
+  - Not implemented in this pass to keep PR-4 changes minimal.

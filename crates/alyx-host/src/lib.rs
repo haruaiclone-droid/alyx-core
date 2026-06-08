@@ -79,7 +79,6 @@ pub fn serve_http_with_runtime<A, R>(
 ) -> io::Result<()>
 where
     A: App,
-    A::Message: Send,
     R: RenderingPlanExecutor,
 {
     let output_dir = &options.output_dir;
@@ -126,7 +125,6 @@ fn serve_one_runtime<A, R>(
 ) -> io::Result<()>
 where
     A: App,
-    A::Message: Send,
     R: RenderingPlanExecutor,
 {
     let (request, body) = read_http_request(stream)?;
