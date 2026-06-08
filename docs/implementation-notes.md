@@ -25,6 +25,7 @@ The attached request asks for a phased, end-to-end Alyx implementation:
   - `alyx-cli`
 - IR/Plan/Runtime/Event flows are implemented with stable ids and accessibility fields.
 - Host helpers for static export and local serving are available, with a browser runtime event bridge for local preview and runtime-backed serve path.
+- `build-web` now attempts to compile the shared `web_counter` WASM example and embed it as `app.wasm`; when the local environment cannot build wasm, it keeps the placeholder for compatibility.
 - CLI smoke entrypoints exist for `--help`, `build-web`, and `serve`.
 - Docs and example coverage were expanded in a single implementation pass to match the pasted plan phases.
 

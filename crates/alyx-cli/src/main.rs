@@ -1,5 +1,6 @@
 use std::env;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
+use std::process::Command;
 
 use alyx_core::{
     compiler::compile,
@@ -11,6 +12,11 @@ use alyx_core::{
 };
 
 type CliResult<T> = Result<T, Box<dyn std::error::Error>>;
+
+const WASM_TARGET: &str = "wasm32-unknown-unknown";
+const APP_WASM_NAME: &str = "app.wasm";
+const RUNTIME_EXAMPLE: &str = "web_counter";
+const WORKSPACE_PACKAGE: &str = "alyx-examples";
 
 fn main() {
     let args = env::args().skip(1).collect::<Vec<_>>();
@@ -94,7 +100,51 @@ fn run_build_web(output_dir: PathBuf) -> CliResult<PathBuf> {
         },
     );
     let written = build_web(&output.rp, &output_dir)?;
+    if let Err(error) = write_runtime_wasm(&output_dir) {
+        eprintln!("warning: failed to build browser runtime wasm: {error}");
+    }
     Ok(written)
+}
+
+fn write_runtime_wasm(output_dir: &Path) -> CliResult<()> {
+    let workspace_root = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .and_then(Path::parent)
+        .ok_or_else(|| std::io::Error::other("invalid workspace manifest path"))?
+        .to_path_buf();
+
+    let status = Command::new("cargo")
+        .arg("build")
+        .arg("--target")
+        .arg(WASM_TARGET)
+        .arg("--package")
+        .arg(WORKSPACE_PACKAGE)
+        .arg("--example")
+        .arg(RUNTIME_EXAMPLE)
+        .arg("--manifest-path")
+        .arg(workspace_root.join("Cargo.toml"))
+        .status()?;
+
+    if !status.success() {
+        return Err(std::io::Error::other(format!(
+            "cargo build exited with status {status}"
+        ))
+        .into());
+    }
+
+    let built_wasm = workspace_root.join("target").join(WASM_TARGET).join("debug").join("examples");
+    let built_wasm = built_wasm.join(format!("{RUNTIME_EXAMPLE}.wasm"));
+    let output_wasm = output_dir.join(APP_WASM_NAME);
+    let written = std::fs::copy(&built_wasm, output_wasm)?;
+    if written == 0 {
+        return Err(std::io::Error::other(format!(
+            "copied zero bytes from {}",
+            built_wasm.display()
+        ))
+        .into());
+    }
+
+    Ok(())
 }
 
 fn run_serve(options: HostOptions) -> CliResult<()> {

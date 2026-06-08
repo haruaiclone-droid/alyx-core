@@ -193,7 +193,7 @@
   - `cargo check --manifest-path work/alyx-core/Cargo.toml --package alyx-native --example native_counter --features winit-backend`
 
 ### 14. Provide runtime-backed interactive Web/Wasm delivery path for the same UI code
-- Status: [x]
+- Status: [ ]
 - Files:
   - `Cargo.toml` (wasm target deps for examples)
   - `crates/alyx-web/src/lib.rs`
@@ -203,7 +203,20 @@
   - Same `counter` application logic from `examples/shared_counter.rs` is used by wasm and non-wasm examples.
   - Browser event bridge in generated html prefers a window callback (`window.__alyxHandleEvent`) when present.
   - Wasm start path initializes `HeadlessRuntime<CounterApp>` with the DOM renderer and re-renders on parsed `BrowserEvent`.
+  - `build-web` attempts to embed a real `app.wasm` produced by the workspace shared wasm example and leaves a compatibility fallback when unavailable.
 - Verification:
-  - `cargo check --manifest-path Cargo.toml --example web_counter`
-  - `cargo check --manifest-path Cargo.toml --example web_counter --target wasm32-unknown-unknown`
-  - Manual browser smoke using the generated HTML + wasm callback path (click/keyboard event loop).
+  - 実装が行われた:
+    - `crates/alyx-cli/src/main.rs` に `write_runtime_wasm` を追加済み
+    - 失敗時は既存 `app.wasm` placeholder を上書きしない実装
+  - 残タスク:
+    - `cargo run --package alyx-cli -- build-web dist` 実行後に `dist/app.wasm` が有効なWASMヘッダ(`0x00 61 73 6d`)かつ placeholder サイズ差分でないことを確認
+
+### 15. Keep plan/checklist aligned with post-fix status
+- Status: [x]
+- Files:
+  - `plan.md`
+- Completion criteria:
+  - 未検証タスクは `[ ]` のまま残し、完了条件と検証方法を明示する
+  - 実装済み・未実装の誤記がない
+- Verification:
+  - `plan.md` をレビューし、対象ファイル/条件/検証コマンドの記載有無を確認
