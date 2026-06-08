@@ -17,9 +17,7 @@ pub mod executor {
     impl<T> EventPlanExecutor for T {}
 
     pub use alyx_executor::{
-        EventPlanExecutor as RuntimeEventPlanExecutor,
-        MemoryRenderer,
-        RenderingPlanExecutor,
+        EventPlanExecutor as RuntimeEventPlanExecutor, MemoryRenderer, RenderingPlanExecutor,
         TraceRenderer,
     };
 }
@@ -55,7 +53,7 @@ pub mod native {
 pub mod prelude {
     pub use crate::compiler::compile;
     pub use crate::executor::{
-        EventPlanExecutor, MemoryRenderer, RenderingPlanExecutor, RenderPlanExecutor,
+        EventPlanExecutor, MemoryRenderer, RenderPlanExecutor, RenderingPlanExecutor,
         RuntimeEventPlanExecutor, TraceRenderer,
     };
     pub use crate::ir::*;

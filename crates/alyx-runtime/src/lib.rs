@@ -466,8 +466,9 @@ where
     where
         R: RenderingPlanExecutor,
     {
-        if let Some(hit) =
-            self.resolve_hit_area(EventType::KeyUp, 0.0, 0.0, Some(node), Some(element)).cloned()
+        if let Some(hit) = self
+            .resolve_hit_area(EventType::KeyUp, 0.0, 0.0, Some(node), Some(element))
+            .cloned()
         {
             self.dispatch_event(&hit, renderer)
         } else {
@@ -866,7 +867,15 @@ mod tests {
         let (mut runtime, mut renderer) = build_runtime();
         runtime.step(&mut renderer);
 
-        assert!(runtime.dispatch_keydown_by_ids(999, 999, &mut renderer).is_none());
-        assert!(runtime.dispatch_keyup_by_ids(999, 999, &mut renderer).is_none());
+        assert!(
+            runtime
+                .dispatch_keydown_by_ids(999, 999, &mut renderer)
+                .is_none()
+        );
+        assert!(
+            runtime
+                .dispatch_keyup_by_ids(999, 999, &mut renderer)
+                .is_none()
+        );
     }
 }
