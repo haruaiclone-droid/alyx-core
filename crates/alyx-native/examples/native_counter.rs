@@ -6,17 +6,17 @@ mod shared_counter;
 use std::time::Duration;
 
 #[cfg(feature = "winit-backend")]
-use shared_counter::CounterApp;
-#[cfg(feature = "winit-backend")]
 use alyx_core::runtime::Command;
 #[cfg(feature = "winit-backend")]
 use alyx_executor::MemoryRenderer;
 #[cfg(feature = "winit-backend")]
 use alyx_ir::Size;
 #[cfg(feature = "winit-backend")]
-use alyx_native::{pump_native_events, WinitEventLoop};
+use alyx_native::{WinitEventLoop, pump_native_events};
 #[cfg(feature = "winit-backend")]
 use alyx_runtime::HeadlessRuntime;
+#[cfg(feature = "winit-backend")]
+use shared_counter::CounterApp;
 
 #[cfg(feature = "winit-backend")]
 fn main() {
@@ -28,13 +28,13 @@ fn main() {
         },
     );
     let mut renderer = MemoryRenderer::default();
-    let mut event_loop = WinitEventLoop::new("Alyx Native Counter")
-        .expect("winit backend");
+    let mut event_loop = WinitEventLoop::new("Alyx Native Counter").expect("winit backend");
     println!("Alyx native counter running. Close the window to exit.");
 
     loop {
         runtime.step(&mut renderer);
-        if let Some(Command::RequestExit) = pump_native_events(&mut runtime, &mut renderer, &mut event_loop)
+        if let Some(Command::RequestExit) =
+            pump_native_events(&mut runtime, &mut renderer, &mut event_loop)
         {
             break;
         }

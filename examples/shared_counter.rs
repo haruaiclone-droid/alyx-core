@@ -1,6 +1,6 @@
 use alyx_core::{
-    ir::{Align, FlexDirection, FlexLayout, Justify, Layout, Padding},
     ir::IrNode,
+    ir::{Align, FlexDirection, FlexLayout, Justify, Layout, Padding},
     runtime::{App, Command},
     widgets::*,
 };
@@ -16,6 +16,9 @@ pub struct CounterApp;
 
 pub const VIEW_WIDTH: f32 = 320.0;
 pub const VIEW_HEIGHT: f32 = 120.0;
+
+#[allow(dead_code)]
+fn main() {}
 
 fn button_with_label(msg: Msg, label: &str) -> Widget<Msg> {
     Widget::Button(ButtonWidget::text(label, msg))

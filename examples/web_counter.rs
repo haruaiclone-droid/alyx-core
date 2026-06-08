@@ -1,25 +1,25 @@
 mod shared_counter;
 
-#[cfg(not(target_arch = "wasm32"))]
-use alyx_executor::MemoryRenderer;
-use alyx_core::runtime::HeadlessRuntime;
 use alyx_core::ir::Size;
-use shared_counter::{VIEW_HEIGHT, VIEW_WIDTH};
-use shared_counter::CounterApp;
 #[cfg(target_arch = "wasm32")]
-use std::cell::RefCell;
-#[cfg(target_arch = "wasm32")]
-use web_sys::window;
-#[cfg(target_arch = "wasm32")]
-use wasm_bindgen::{prelude::*, JsCast, JsValue};
+use alyx_core::plan::EventType;
+use alyx_core::runtime::HeadlessRuntime;
 #[cfg(target_arch = "wasm32")]
 use alyx_core::web::BrowserDomRenderer;
 #[cfg(target_arch = "wasm32")]
-use alyx_core::plan::EventType;
-#[cfg(target_arch = "wasm32")]
 use alyx_core::web::{browser_event_to_runtime, parse_browser_event};
+#[cfg(not(target_arch = "wasm32"))]
+use alyx_executor::MemoryRenderer;
 #[cfg(target_arch = "wasm32")]
 use js_sys;
+use shared_counter::CounterApp;
+use shared_counter::{VIEW_HEIGHT, VIEW_WIDTH};
+#[cfg(target_arch = "wasm32")]
+use std::cell::RefCell;
+#[cfg(target_arch = "wasm32")]
+use wasm_bindgen::{JsCast, JsValue, prelude::*};
+#[cfg(target_arch = "wasm32")]
+use web_sys::window;
 
 #[cfg(target_arch = "wasm32")]
 thread_local! {
@@ -50,7 +50,12 @@ fn with_runtime<F, T>(handler: F) -> Option<T>
 where
     F: FnOnce(&mut HeadlessRuntime<CounterApp>, &mut BrowserDomRenderer) -> T,
 {
-    RUNTIME.with(|runtime| runtime.borrow_mut().as_mut().map(|runtime| handler(&mut runtime.runtime, &mut runtime.renderer)))
+    RUNTIME.with(|runtime| {
+        runtime
+            .borrow_mut()
+            .as_mut()
+            .map(|runtime| handler(&mut runtime.runtime, &mut runtime.renderer))
+    })
 }
 
 #[cfg(target_arch = "wasm32")]
@@ -139,7 +144,9 @@ fn apply_browser_event(raw: &str) {
                 if let (Some(node), Some(element)) = (runtime_event.node, runtime_event.element) {
                     runtime
                         .dispatch_keyup_by_ids(node, element, renderer)
-                        .or_else(|| runtime.dispatch_keyup(runtime_event.x, runtime_event.y, renderer))
+                        .or_else(|| {
+                            runtime.dispatch_keyup(runtime_event.x, runtime_event.y, renderer)
+                        })
                 } else {
                     runtime.dispatch_keyup(runtime_event.x, runtime_event.y, renderer)
                 }
@@ -166,7 +173,9 @@ fn apply_browser_event(raw: &str) {
                 }
             }
             EventType::Hover => runtime.dispatch_hover(runtime_event.x, runtime_event.y, renderer),
-            EventType::Scroll => runtime.dispatch_scroll(runtime_event.x, runtime_event.y, renderer),
+            EventType::Scroll => {
+                runtime.dispatch_scroll(runtime_event.x, runtime_event.y, renderer)
+            }
             EventType::NavigateBack | EventType::NavigateForward => None,
         };
         runtime.step(renderer);

@@ -123,13 +123,16 @@ fn write_runtime_wasm(output_dir: &Path) -> CliResult<()> {
         .status()?;
 
     if !status.success() {
-        return Err(std::io::Error::other(format!(
-            "cargo build exited with status {status}"
-        ))
-        .into());
+        return Err(
+            std::io::Error::other(format!("cargo build exited with status {status}")).into(),
+        );
     }
 
-    let built_wasm = workspace_root.join("target").join(WASM_TARGET).join("debug").join("examples");
+    let built_wasm = workspace_root
+        .join("target")
+        .join(WASM_TARGET)
+        .join("debug")
+        .join("examples");
     let built_wasm = built_wasm.join(format!("{RUNTIME_EXAMPLE}.wasm"));
     let output_wasm = output_dir.join(APP_WASM_NAME);
     let written = std::fs::copy(&built_wasm, output_wasm)?;

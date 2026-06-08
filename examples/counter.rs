@@ -1,7 +1,7 @@
 mod shared_counter;
 
-use alyx_core::runtime::HeadlessRuntime;
 use alyx_core::ir::Size;
+use alyx_core::runtime::HeadlessRuntime;
 use alyx_executor::MemoryRenderer;
 use shared_counter::{CounterApp, VIEW_HEIGHT, VIEW_WIDTH};
 

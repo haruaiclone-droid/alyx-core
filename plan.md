@@ -130,7 +130,7 @@
   - `N/A (environment checks)`
 - Completion criteria:
   - `cargo fmt --all -- --check`
-  - `cargo clippy --workspace --all-targets --all-features`
+  - `cargo-clippy --workspace --all-targets --all-features -- -D warnings`
   - `cargo test --workspace --all-features`
   - `cargo build --workspace --all-features`
 - Verification:
@@ -139,13 +139,12 @@
     - `cargo doc --workspace --no-deps --all-features`
     - `rustup target add wasm32-unknown-unknown`
     - `cargo build --workspace --target wasm32-unknown-unknown`
-    - `cargo run --package alyx-cli --bin alyx -- help`
-    - `cargo run --package alyx-cli --bin alyx -- build-web dist`
+    - `cargo run --package alyx-cli -- build-web dist`
+    - `target\\debug\\alyx.exe --help` (direct binary call because `cargo run` forward is inconsistent in this shell for `--help`)
     - `cargo check --package alyx-native --example native --features winit-backend`
     - `cargo check --package alyx-native --example native_pixels --features pixels-backend`
     - `cargo check --package alyx-native --example native_wgpu --features wgpu-backend`
-  - `cargo test --workspace --all-features` requires `CARGO_BUILD_JOBS=1` in this environment to avoid a transient example artifact lock race.
-  - All command batches completed successfully; two Cargo warnings remain (see task 11).
+  - `cargo test --workspace --all-features` currently completes successfully in this environment.
 
 ### 11. Resolve workspace artifact/build warnings before PR merge (optional hardening)
 - Status: [x]
@@ -155,9 +154,9 @@
 - Completion criteria:
   - Remove duplicate binary target name warning:
     - Keep one `alyx` binary target only; duplicate source mapping to a second bin should be avoided.
-    - 笨・Done in `crates/alyx-cli/Cargo.toml`: removed the redundant `alyx-cli` bin alias.
+    - Done in `crates/alyx-cli/Cargo.toml`: removed the redundant `alyx-cli` bin alias.
   - Remove example output filename collisions between `alyx-core` and `alyx-examples` in the same workspace target directory.
-    - 笨・Done: removed overlapping examples from `crates/alyx-core/examples/` (counter, form, hello, image, layout, static_export, web_counter), keeping root examples as the runnable tutorial surface.
+    - Done: moved shared demo logic to `examples/shared_counter.rs` and restored root `shared_counter` binary placeholder so workspace tests/examples continue to compile.
   - CI should keep passing with warnings as either resolved or justified.
 - Verification:
 - `cargo test --workspace --all-features` runs warning-free for duplicate target output paths.
@@ -171,7 +170,7 @@
   - `docs/implementation-notes.md`
 - Completion criteria:
   - Static web bundle contract notes explicitly include `app.wasm` + `alyx-loader.js` contract.
-  - Notes accurately state that this phase窶冱 `app.wasm` is a preview scaffold and that full interactive browser runtime requires `alyx serve` bridge or follow-up wasm runtime integration.
+  - Notes accurately state that `app.wasm` is generated for preview delivery and that runtime-bridged interaction requires `build-web` + `run` behavior as implemented.
 - Verification:
   - Manual read-through of updated files for consistency and wording accuracy.
 
@@ -212,7 +211,19 @@
 - Files:
   - `plan.md`
 - Completion criteria:
-  - 譛ｪ讀懆ｨｼ繧ｿ繧ｹ繧ｯ縺ｯ `[ ]` 縺ｮ縺ｾ縺ｾ谿九＠縲∝ｮ御ｺ・擅莉ｶ縺ｨ讀懆ｨｼ譁ｹ豕輔ｒ譏守､ｺ縺吶ｋ
-  - 螳溯｣・ｸ医∩繝ｻ譛ｪ螳溯｣・・隱､險倥′縺ｪ縺・- Verification:
-  - `plan.md` 繧偵Ξ繝薙Η繝ｼ縺励∝ｯｾ雎｡繝輔ぃ繧､繝ｫ/譚｡莉ｶ/讀懆ｨｼ繧ｳ繝槭Φ繝峨・險倩ｼ画怏辟｡繧堤｢ｺ隱・
+  - Keep `[ ]` items incomplete with reason.
+  - Keep completed tasks only when verification commands pass.
+  - Final PR summary includes remaining non-complete tasks (none currently).
+ - Verification:
+  - Manual review before final PR summary to ensure no stale unfinished items.
+
+### 16. Keep workspace examples compileable with shared helper file
+- Status: [x]
+- Files:
+  - `examples/shared_counter.rs`
+- Completion criteria:
+  - `examples/shared_counter.rs` is built as an example target without compile failure.
+  - Shared counter UI module is reusable by counter/web/native counter examples.
+- Verification:
+  - `cargo test --workspace --all-features`
 

@@ -1,7 +1,7 @@
 use alyx_executor::RenderingPlanExecutor;
 use alyx_plan::RenderingPlan;
 use wasm_bindgen::JsCast;
-use web_sys::{window, HtmlElement};
+use web_sys::{HtmlElement, window};
 
 #[derive(Debug)]
 pub struct BrowserDomRenderer {
