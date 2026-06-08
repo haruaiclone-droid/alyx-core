@@ -75,10 +75,7 @@ impl App for DemoApp {
         Widget::Container(ContainerWidget {
             children: vec![
                 Widget::Text(TextWidget::new(format!("count: {state}")).size(120.0, 24.0)),
-                Widget::Button(ButtonWidget {
-                    label: TextWidget::new("increment").size(80.0, 24.0),
-                    on_click: Some(Msg::Increment),
-                }),
+                button("increment").on_click(Msg::Increment),
             ],
             layout: alyx_ir::Layout::Flex(alyx_ir::FlexLayout {
                 direction: alyx_ir::FlexDirection::Column,

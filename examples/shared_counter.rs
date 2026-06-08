@@ -21,7 +21,7 @@ pub const VIEW_HEIGHT: f32 = 120.0;
 fn main() {}
 
 fn button_with_label(msg: Msg, label: &str) -> Widget<Msg> {
-    Widget::Button(ButtonWidget::text(label, msg))
+    button(label).on_click(msg)
 }
 
 pub fn counter_ui(state: &u32) -> IrNode<Msg> {
