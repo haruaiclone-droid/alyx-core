@@ -82,6 +82,17 @@
 - Verification:
   - `cargo test -p alyx-compiler --test compile`
 
+### 7. Record residual PR scope (browser/native/CI depth)
+- Status: [x]
+- Files:
+  - `docs/pr-summary.md`
+  - `docs/implementation-notes.md`
+- Completion criteria:
+  - Follow-up scope includes browser automation depth, native renderer hardening, and CI reliability.
+  - Completion claims avoid full-production-ready assertions.
+- Verification:
+  - Manual review before PR draft completion.
+
 ### 8. Widen runtime/host/native public bounds to `Clone`-based message models
 - Status: [x]
 - Files:
@@ -108,16 +119,3 @@
 - Verification:
   - `cargo test -p alyx-cli`
   - `cargo run --package alyx-cli -- build-web <tmp_dir>` (manual spot-check)
-
-### 7. Record residual PR scope (browser/native/CI depth)
-- Status: [x]
-- Files:
-  - `docs/pr-summary.md`
-  - `docs/implementation-notes.md`
-- Completion criteria:
-  - Follow-up scope includes browser automation depth, native renderer hardening, and CI reliability.
-  - Completion claims avoid full-production-ready assertions.
-- Verification:
-  - Manual review before PR draft completion.
-- Reason:
-  - Not implemented in this pass to keep PR-4 changes minimal.
