@@ -323,14 +323,17 @@ fn write_http_response(
 }
 
 fn write_manifest(output_dir: &Path) -> io::Result<()> {
-    let manifest = output_dir.join("manifest.json");
-    if let Some(parent) = manifest.parent() {
-        std::fs::create_dir_all(parent)?;
+    let manifest_names = ["manifest.json", "alyx-manifest.json"];
+    let manifest_body =
+        r#"{"name":"Alyx App","start_url":"./index.html","display":"standalone"}"#;
+    for name in manifest_names {
+        let manifest = output_dir.join(name);
+        if let Some(parent) = manifest.parent() {
+            std::fs::create_dir_all(parent)?;
+        }
+        std::fs::write(&manifest, manifest_body)?;
     }
-    std::fs::write(
-        manifest,
-        r#"{"name":"Alyx App","start_url":"./index.html","display":"standalone"}"#,
-    )
+    Ok(())
 }
 
 fn build_static_dist_with_bridge(plan: &RenderingPlan, output_dir: &Path) -> io::Result<PathBuf> {

@@ -13,7 +13,7 @@ Alyx is a Rust-first, cross-platform UI concept composed of:
 - `alyx-host`: local preview / static dist helpers
 - `alyx-native`: native adapter abstraction layer
 - `alyx-core`: public re-exports
-- `alyx-cli`: command entrypoint for host build/serve smoke flow
+- `alyx-cli`: package for host build/serve smoke flow (binary: `alyx`)
 
 ## What is included in this repository
 
@@ -129,6 +129,7 @@ The acceptance commands used in this PR scope are:
 - `rustup target add wasm32-unknown-unknown`
 - `cargo build --target wasm32-unknown-unknown --workspace`
 - `cargo run --package alyx-cli -- --help`
+- `cargo run --package alyx-cli --bin alyx -- --help`
 - `cargo run --package alyx-cli -- build-web dist`
 - `cargo check --package alyx-native --example native --features winit-backend`
 - `cargo check --package alyx-native --example native_pixels --features pixels-backend`

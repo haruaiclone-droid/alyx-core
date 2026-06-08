@@ -252,8 +252,10 @@ fn phase_integration_flow_covers_widgets_compiler_runtime_and_web_export() {
     let index_path = build_web(&output.rp, &output_dir).expect("build web");
     let index_html = fs::read_to_string(&index_path).expect("index html");
     let manifest_path = output_dir.join("manifest.json");
+    let alyx_manifest_path = output_dir.join("alyx-manifest.json");
     assert!(index_html.contains("data-node-id"));
     assert!(fs::read_to_string(&manifest_path).is_ok());
+    assert!(fs::read_to_string(&alyx_manifest_path).is_ok());
     let _ = fs::remove_dir_all(&output_dir);
 }
 

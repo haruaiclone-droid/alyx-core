@@ -6,14 +6,15 @@
 - `build_static_dist` for `index.html` + manifest
 - `serve_http` for local preview serving
 - `serve_http_with_runtime` for runtime-backed local preview with event bridge
-- `alyx-cli` package now executes `build-web` and `serve` against the same host flow:
+- CLI flow is exposed from the `alyx` binary in the `alyx-cli` crate:
   - `cargo run --package alyx-cli -- --help`
   - `cargo run --package alyx-cli -- build-web dist`
-  - `cargo run --package alyx-cli -- serve 3000 dist`
+- `cargo run --package alyx-cli -- serve 3000 dist`
+- `cargo run --package alyx-cli -- serve dist`
 
 ## Deploying a static dist
 
-`build-web` always writes a complete deployable static bundle to the destination directory (`index.html`, `manifest.json`, and `script` tags for event handling).
+`build-web` writes a deployable static bundle to the destination directory (`index.html`, `manifest.json`, `alyx-manifest.json`, and `script` tags for event handling).
 
 To deploy:
 

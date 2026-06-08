@@ -59,13 +59,22 @@ fn parse_command(args: &[String]) -> Command {
             Command::BuildWeb { output_dir }
         }
         Some("serve") => {
-            let port = args
-                .get(1)
-                .and_then(|value| value.parse::<u16>().ok())
-                .unwrap_or(3000);
-            let output_dir = args
-                .get(2)
-                .map_or_else(|| PathBuf::from("dist"), PathBuf::from);
+            let (port, output_dir) = match args.get(1).map(String::as_str) {
+                Some(value) => {
+                    if let Ok(port) = value.parse::<u16>() {
+                        (
+                            port,
+                            args
+                                .get(2)
+                                .map_or_else(|| PathBuf::from("dist"), PathBuf::from),
+                        )
+                    } else {
+                        let port = args.get(2).and_then(|value| value.parse::<u16>().ok()).unwrap_or(3000);
+                        (port, PathBuf::from(value))
+                    }
+                }
+                None => (3000, PathBuf::from("dist")),
+            };
             Command::Serve { port, output_dir }
         }
         Some(_other) => Command::Help,
@@ -150,7 +159,7 @@ fn cli_demo_ui() -> alyx_core::ir::IrNode<()> {
 
 fn print_help() {
     println!("Alyx CLI");
-    println!("Usage: alyx-cli <command> [options]");
+    println!("Usage: alyx <command> [options]");
     println!("Commands:");
     println!("  help                   Show this help");
     println!("  build-web [dir]        Build static bundle into [dir] (default: dist)");
@@ -181,6 +190,16 @@ mod tests {
     #[test]
     fn parse_serve_defaults() {
         let command = parse_command(&[String::from("serve")]);
+        assert!(matches!(
+            command,
+            Command::Serve { port, output_dir }
+                if port == 3000 && output_dir == std::path::Path::new("dist")
+        ));
+    }
+
+    #[test]
+    fn parse_serve_dir_first() {
+        let command = parse_command(&[String::from("serve"), String::from("dist")]);
         assert!(matches!(
             command,
             Command::Serve { port, output_dir }
