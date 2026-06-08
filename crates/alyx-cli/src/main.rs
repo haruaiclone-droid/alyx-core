@@ -126,7 +126,7 @@ fn write_runtime_wasm(output_dir: &Path) -> CliResult<()> {
     let output_wasm = output_dir.join(APP_WASM_NAME);
     let write_placeholder = |reason: String| {
         eprintln!("warning: runtime wasm build unavailable ({reason}), writing fallback app.wasm");
-        std::fs::write(&output_wasm, &RUNTIME_PLACEHOLDER_WASM)
+        std::fs::write(&output_wasm, RUNTIME_PLACEHOLDER_WASM)
             .map(|_| ())
             .map_err(|error| {
                 std::io::Error::other(format!("failed writing fallback app.wasm: {error}"))
