@@ -138,3 +138,17 @@
   - `rg -n "ButtonWidget::text" examples crates/alyx-core/examples crates/alyx-native/examples crates/alyx-core/tests`
   - `cargo test -p alyx-core --test phase_integration`
   - `cargo check --workspace --examples`
+
+### 11. Reuse shared counter sample across web and native desktop example path
+- Status: [x]
+- Files:
+  - `crates/alyx-native/examples/native.rs`
+  - `examples/shared_counter.rs`
+- Completion criteria:
+  - Native winit example uses the same shared counter widget tree/state model as web counter.
+  - No duplicated counter business logic (`increment`/`reset`) in native counter example.
+  - Compile/runtime smoke for native winit example remains green with feature gate.
+- Verification:
+  - `cargo check -p alyx-native --example native --features winit-backend`
+  - `cargo check --workspace --examples`
+  - `cargo test --workspace --all-features`
