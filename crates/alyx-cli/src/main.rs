@@ -16,7 +16,6 @@ type CliResult<T> = Result<T, Box<dyn std::error::Error>>;
 const WASM_TARGET: &str = "wasm32-unknown-unknown";
 const APP_WASM_NAME: &str = "app.wasm";
 const RUNTIME_EXAMPLE: &str = "web_counter";
-const WORKSPACE_PACKAGE: &str = "alyx-examples";
 
 fn main() {
     let args = env::args().skip(1).collect::<Vec<_>>();
@@ -117,8 +116,6 @@ fn write_runtime_wasm(output_dir: &Path) -> CliResult<()> {
         .arg("build")
         .arg("--target")
         .arg(WASM_TARGET)
-        .arg("--package")
-        .arg(WORKSPACE_PACKAGE)
         .arg("--example")
         .arg(RUNTIME_EXAMPLE)
         .arg("--manifest-path")
