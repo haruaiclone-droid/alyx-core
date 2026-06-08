@@ -1,37 +1,22 @@
-use alyx_core::ir::{Align, FlexDirection, FlexLayout, Justify, Layout, Padding};
 use alyx_core::widgets::*;
 
 fn main() {
-    let layout: Widget<()> = Widget::Container(ContainerWidget {
-        children: vec![
-            Widget::Text(TextWidget::new("title").size(120.0, 24.0)),
-            Widget::Spacer {
-                width: 0.0,
-                height: 8.0,
-            },
-            Widget::Container(ContainerWidget {
-                children: vec![
-                    Widget::Text(TextWidget::new("left").size(40.0, 16.0)),
-                    Widget::Text(TextWidget::new("right").size(40.0, 16.0)),
-                ],
-                layout: Layout::Flex(FlexLayout {
-                    direction: FlexDirection::Row,
-                    gap: 12.0,
-                    padding: Padding::default(),
-                    align: Align::Start,
-                    justify: Justify::Start,
-                }),
-            }),
-            Widget::Link(LinkWidget::new("docs", "/docs", None)),
-        ],
-        layout: Layout::Flex(FlexLayout {
-            direction: FlexDirection::Column,
-            gap: 4.0,
-            padding: Padding::default(),
-            align: Align::Start,
-            justify: Justify::Start,
-        }),
-    });
+    let layout: alyx_core::ir::IrNode<()> = column::<()>([
+        Widget::Text(text("title").size(120.0, 24.0)),
+        Widget::Spacer {
+            width: 0.0,
+            height: 8.0,
+        },
+        row([
+            Widget::Text(text("left").size(40.0, 16.0)),
+            Widget::Text(text("right").size(40.0, 16.0)),
+        ])
+        .gap(12.0)
+        .into(),
+        Widget::Link(LinkWidget::new("docs", "/docs", None)),
+    ])
+    .gap(4.0)
+    .into_ir();
 
-    let _ = layout.into_ir();
+    let _ = layout;
 }

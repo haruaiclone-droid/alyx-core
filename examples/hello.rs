@@ -1,10 +1,10 @@
 use alyx_core::{ir::*, widgets::*};
 
 fn main() {
-    let root: alyx_core::ir::IrNode<()> = Widget::Container(ContainerWidget::column(vec![
-        Widget::Text(TextWidget::new("Hello Alyx").size(200.0, 24.0)),
-        Widget::Text(TextWidget::new("Complete UI pipeline demo").size(240.0, 18.0)),
-    ]))
+    let root: alyx_core::ir::IrNode<()> = column::<()>([
+        Widget::Text(text("Hello Alyx").size(200.0, 24.0)),
+        Widget::Text(text("Complete UI pipeline demo").size(240.0, 18.0)),
+    ])
     .into_ir();
 
     let output = alyx_core::compiler::compile(
