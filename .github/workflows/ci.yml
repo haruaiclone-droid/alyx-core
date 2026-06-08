@@ -1,0 +1,83 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+
+jobs:
+  matrix:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        command:
+          - cargo fmt --all -- --check
+          - cargo clippy --workspace --all-targets --all-features -- -D warnings
+          - cargo test --workspace --all-features
+          - cargo build --workspace --all-features
+          - cargo run --package alyx-cli -- --help
+          - cargo run --package alyx-cli -- build-web dist
+          - cargo doc --workspace --no-deps --all-features
+          - cargo check --package alyx-native --example native --features winit-backend --no-run
+          - cargo check --package alyx-native --example native_pixels --features pixels-backend --no-run
+          - cargo check --package alyx-native --example native_wgpu --features wgpu-backend --no-run
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - name: Rust cache
+        uses: Swatinem/rust-cache@v2
+      - name: Run ${{ matrix.command }}
+        run: ${{ matrix.command }}
+
+  wasm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - name: Install wasm target
+        run: rustup target add wasm32-unknown-unknown
+      - name: Rust cache
+        uses: Swatinem/rust-cache@v2
+      - name: Build all workspace for wasm
+        run: cargo build --workspace --target wasm32-unknown-unknown
+
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - name: Rust cache
+        uses: Swatinem/rust-cache@v2
+      - name: Build examples
+        run: cargo build --workspace --examples
+      - name: CLI build-web + serve smoke
+        run: |
+          set -euo pipefail
+          cargo run --package alyx-cli -- build-web dist
+          (
+            cargo run --package alyx-cli -- serve 38888 dist > /tmp/alyx-serve.log 2>&1 &
+            server_pid=$!
+            trap 'kill $server_pid || true' EXIT
+            sleep 2
+            python3 - <<'PY'
+import urllib.request
+
+for path in ("/", "/index.html"):
+    with urllib.request.urlopen(f"http://127.0.0.1:38888{path}", timeout=8) as response:
+        if response.status != 200:
+            raise SystemExit(f"unexpected status for {path}: {response.status}")
+print("CLI smoke: serve endpoints reachable")
+PY
+          )
