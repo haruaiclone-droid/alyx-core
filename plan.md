@@ -154,7 +154,8 @@
   - `Cargo.toml` workspace example name strategy
 - Completion criteria:
   - Remove duplicate binary target name warning:
-    - One `alyx` and one `alyx-cli` binary target should exist unless duplication is explicitly justified.
+    - Keep one `alyx` binary target only; duplicate source mapping to a second bin should be avoided.
+    - ✅ Done in `crates/alyx-cli/Cargo.toml`: removed the redundant `alyx-cli` bin alias.
   - Remove example output filename collisions between `alyx-core` and `alyx-examples` in the same workspace target directory.
   - CI should keep passing with warnings as either resolved or justified.
 - Verification:

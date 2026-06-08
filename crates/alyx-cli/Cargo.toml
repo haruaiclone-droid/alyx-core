@@ -11,7 +11,3 @@ alyx-core = { path = "../alyx-core" }
 [[bin]]
 name = "alyx"
 path = "src/main.rs"
-
-[[bin]]
-name = "alyx-cli"
-path = "src/main.rs"
