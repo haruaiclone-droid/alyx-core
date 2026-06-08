@@ -134,14 +134,10 @@ The acceptance commands used in this PR scope are:
 - `cargo check --package alyx-native --example native_pixels --features pixels-backend`
 - `cargo check --package alyx-native --example native_wgpu --features wgpu-backend`
 
-### Latest local verification (2026-06-08)
+### Verification status
 
-- Local shell in this environment does not include Cargo on `PATH` by default, but Cargo is available at:
-  `C:\\Users\\ai\\.cargo\\bin\\cargo.exe`
-- Local verification passes when prepending
-  `C:\\Ruby34-x64\\msys64\\ucrt64\\bin` to `PATH` and using:
-  `cargo +stable-x86_64-pc-windows-gnu`
-- Full `build/test` gates have been captured locally with this setup.
+- CI is the source of authoritative verification for the full matrix.
+- In this environment we have not re-executed the full command suite during this review-only fix pass.
 
 ## Current deferred items
 

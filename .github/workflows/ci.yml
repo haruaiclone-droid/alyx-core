@@ -65,12 +65,23 @@ jobs:
       - name: CLI build-web + serve smoke
         run: |
           set -euo pipefail
+          port=38888
+          max_wait_seconds=12
           cargo run --package alyx-cli -- build-web dist
           (
-            cargo run --package alyx-cli -- serve 38888 dist > /tmp/alyx-serve.log 2>&1 &
+            cargo run --package alyx-cli -- serve "$port" dist > /tmp/alyx-serve.log 2>&1 &
             server_pid=$!
             trap 'kill $server_pid || true' EXIT
-            sleep 2
+            for attempt in $(seq 1 "$max_wait_seconds"); do
+              if curl -fsS "http://127.0.0.1:$port/" > /tmp/alyx-root.html 2>/dev/null; then
+                break
+              fi
+              if [ "$attempt" -eq "$max_wait_seconds" ]; then
+                cat /tmp/alyx-serve.log >&2 || true
+                exit 1
+              fi
+              sleep 1
+            done
             python3 - <<'PY'
 import urllib.request
 

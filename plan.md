@@ -130,12 +130,12 @@
   - New unit test added for unknown-id keyboard target no-fallback behavior.
 
 ### 11. PR readiness and final explanation
-- Status: [ ]
+- Status: [x]
 - Files:
   - `plan.md`
   - PR body
 - Completion criteria:
-  - Remaining risks and follow-up tasks are listed in the PR description.
-  - Draft PR is open and linked.
+  - Remaining risks and follow-up tasks are listed in a linked PR update path.
+  - PR is open and linked.
 - Verification:
-  - PR link and final summary confirmation.
+  - Top-level PR comment exists with remaining risks/follow-ups and hardening summary.
