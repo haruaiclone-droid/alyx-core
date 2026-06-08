@@ -1,143 +1,92 @@
-# Alyx PR #4 Completion Plan
+# Alyx PR #4 Completion Plan (Review Remediation)
 
 ## Rules
 - Mark `[x]` only after implementation and verification are complete.
-- Keep unfinished items as `[ ]` and write explicit reasons.
+- Keep unfinished items as `[ ]` and include why they remain unfinished.
 - Preserve backward compatibility and keep changes minimal.
-- Do not claim completed items before verification.
-- List remaining items in the final PR description.
+- PR-level residual items must be listed explicitly at the end of this file.
 
 ## Tasks
 
-### 1. Compare PR #4 diff against base branch
-- Status: [x]
-- Files:
-  - `work/alyx-core` (all changed files)
-- Completion criteria:
-  - Full diff against base branch is reviewed.
-  - No obvious out-of-scope structural rewrites were accepted without reason.
-- Verification:
-  - `git diff main...codex/alyx-full-stack-implementation`
-
-### 2. Read and validate README.md
-- Status: [x]
-- Files:
-  - `README.md`
-- Completion criteria:
-  - README and implementation direction are aligned.
-  - New modules in this PR are reflected in repository messaging.
-- Verification:
-  - `Get-Content README.md`
-  - `git diff origin/main...HEAD -- README.md`
-
-### 3. Read and validate docs/alyx-overview.md
-- Status: [x]
-- Files:
-  - `docs/alyx-overview.md`
-- Completion criteria:
-  - PR scope and the philosophy document are consistent.
-  - No contradiction between proposed architecture and docs.
-- Verification:
-  - `Get-Content docs/alyx-overview.md`
-  - `git diff origin/main...HEAD -- docs/alyx-overview.md`
-
-### 4. Read all Cargo.toml for dependency and crate graph compatibility
+### 1) Read diff and core docs baseline
 - Status: [x]
 - Files:
   - `Cargo.toml`
-  - `crates/**/Cargo.toml`
-  - `Cargo.lock`
-- Completion criteria:
-  - New crate members and dependency additions are intentional.
-  - No accidental large default dependency graph expansion.
-- Verification:
-  - `git diff origin/main...HEAD -- Cargo.toml`
-  - `git diff origin/main...HEAD -- Cargo.lock`
-
-### 5. Read crates directory for API surface impacts
-- Status: [x]
-- Files:
-  - `crates/`
-- Completion criteria:
-  - Public exports are reviewed for breaking removals.
-  - New crate APIs are additive unless clearly required.
-- Verification:
-  - `git diff origin/main...HEAD -- crates/`
-
-### 6. Read examples, tests, and CI config
-- Status: [x]
-- Files:
+  - `README.md`
+  - `docs/alyx-overview.md`
+  - `.github/workflows/ci.yml`
   - `examples/**/*`
+  - `crates/**/*`
   - `crates/**/tests/**/*`
-  - `.github/workflows/**/*`
 - Completion criteria:
-  - Added examples/tests/CI cover behavior without changing baseline intent.
-  - Existing users are not blocked by mandatory behavior shifts.
+  - Base branch (`origin/main`) and PR branch (`HEAD`) diff is reviewed.
+  - No obvious out-of-scope rewrite is left untracked.
 - Verification:
-  - `git diff origin/main...HEAD -- .github/workflows/ci.yml`
-  - `git diff origin/main...HEAD -- examples/`
-  - `git diff origin/main...HEAD -- crates/**/tests`
+  - `git diff --stat origin/main..HEAD`
+  - `git diff origin/main..HEAD -- README.md docs/alyx-overview.md .github/workflows/ci.yml`
 
-### 7. Audit alignment with Alyx philosophy and compatibility
-- Status: [x]
+### 2) Fix CLI command parsing for host preview invocation
+- Status: [ ]
 - Files:
-  - `docs/alyx-overview.md`
-  - `docs/architecture.md`
-  - `docs/*`
-  - `README.md`
+  - `crates/alyx-cli/src/main.rs`
 - Completion criteria:
-  - The PR preserves incremental implementation and compatibility-first direction.
-  - Design intent is documented under docs for larger shifts.
+  - `alyx serve dist` is parsed as port `3000` + output `dist`.
+  - Existing `alyx serve <port> <dir>` and `alyx serve` continue to work.
+  - Unit test covers directory-first parsing.
 - Verification:
-  - Cross-check of docs and implementation summary.
+  - `cargo test -p alyx-cli`
 
-### 8. Verify no destructive public API changes
-- Status: [x]
+### 3) Expose `alyx` binary name without dropping `alyx-cli` compatibility
+- Status: [ ]
 - Files:
-  - `crates/alyx-core/src/lib.rs`
-  - `crates/alyx-runtime/src/lib.rs`
-  - `crates/alyx-web/src/lib.rs`
+  - `crates/alyx-cli/Cargo.toml`
+  - `crates/alyx-cli/src/main.rs`
+- Completion criteria:
+  - Binary entrypoint is `alyx` for `cargo run`/packaging UX.
+  - Existing `--help` and existing invocation paths still compile and run.
+  - Help text no longer advertises only `alyx-cli`.
+- Verification:
+  - `cargo run --package alyx-cli -- --help`
+
+### 4) Add `alyx-manifest.json` output while preserving `manifest.json`
+- Status: [ ]
+- Files:
   - `crates/alyx-host/src/lib.rs`
+  - `crates/alyx-core/tests/phase_integration.rs`
 - Completion criteria:
-  - Existing `alyx-core::executor` compatibility entry points are preserved.
+  - Host static build writes both files:
+    - `manifest.json` (existing behavior retained)
+    - `alyx-manifest.json` (target-compatible behavior added)
+  - Integration test checks the expected manifest artifact exists.
 - Verification:
-  - `git diff origin/main...HEAD -- crates/alyx-core/src/lib.rs`
+  - `cargo test -p alyx-core --test phase_integration`
 
-### 9. Validate crate/dependency scope
-- Status: [x]
+### 5) Align docs/help for CLI/manifest expectations
+- Status: [ ]
 - Files:
-  - `Cargo.toml`
-  - `Cargo.lock`
-  - `docs/completion-checklist.md`
+  - `crates/alyx-cli/src/main.rs`
+  - `docs/web-hosting.md`
+  - `README.md`
+  - `docs/implementation-notes.md`
 - Completion criteria:
-  - Added crates/features match PR scope.
-  - No unnecessary heavy default dependency is introduced.
+  - Command help text uses `alyx` naming where user-facing.
+  - Deployment docs include `alyx-manifest.json` as target output name without removing `manifest.json` compatibility.
 - Verification:
-  - Dependency diffs reviewed above.
+  - Manual doc review against the patched behavior (`git diff origin/main..HEAD`).
 
-### 10. Implement review fixes with minimal diffs
-- Status: [x]
+### 6) PR readiness reporting
+- Status: [ ]
 - Files:
-  - `crates/alyx-runtime/src/lib.rs`
-  - `crates/alyx-core/src/lib.rs`
-  - `docs/architecture.md`
+  - `docs/pr-summary.md`
+  - PR body (if available)
 - Completion criteria:
-  - Keyboard event dispatch does not fallback by position when target IDs are explicit.
-  - `alyx-core::executor` compatibility shim exists.
-  - Documentation encoding issues in architecture doc are fixed.
+  - Remaining scope from this PR remains clearly listed (not claimed done).
 - Verification:
-  - `git diff -- crates/alyx-runtime/src/lib.rs crates/alyx-core/src/lib.rs docs/architecture.md`
-  - New unit test added for unknown-id keyboard target no-fallback behavior.
+  - Manual check of PR description + plan file.
 
-### 11. PR readiness and final explanation
-- Status: [x]
-- Files:
-  - `plan.md`
-  - PR body
-- Completion criteria:
-  - Remaining risks and follow-up tasks are listed in a linked PR update path.
-  - PR is open and linked.
-- Verification:
-  - PR body is updated to reflect fixes and risks via GitHub API.
-  - Top-level PR comment exists with remaining risks/follow-ups and hardening summary.
-  - Current commit SHA is attached to PR #4 at `https://github.com/naoshinn/alyx-core/pull/4`.
+## Remaining items for full completion image (beyond this minimal compatibility pass)
+
+- [ ] Web renderer/backend crate split (canvas/dom/wgpu) is still a roadmap item; current state remains static export + JS bridge.
+- [ ] Full feature parity for native adapters is partial (winit/pixels/wgpu examples exist, but crate boundaries are not yet split as idealized in the complete roadmap).
+- [ ] CLI deployment UX (`alyx build`, `alyx dev`, project scaffolding) is not in-scope for this PR.
+- [ ] Browser accessibility overlay and input IME pipelines are not in this pass.
