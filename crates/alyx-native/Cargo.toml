@@ -12,6 +12,7 @@ alyx-runtime = { path = "../alyx-runtime" }
 alyx-executor = { path = "../alyx-executor" }
 
 [dev-dependencies]
+alyx-core = { path = "../alyx-core" }
 alyx-widgets = { path = "../alyx-widgets" }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]

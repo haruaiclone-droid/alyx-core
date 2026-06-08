@@ -100,6 +100,7 @@ version = "0.1.0"
 name = "alyx-native"
 version = "0.1.0"
 dependencies = [
+ "alyx-core",
  "alyx-executor",
  "alyx-ir",
  "alyx-plan",

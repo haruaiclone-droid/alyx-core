@@ -174,3 +174,18 @@
   - Notes accurately state that this phase’s `app.wasm` is a preview scaffold and that full interactive browser runtime requires `alyx serve` bridge or follow-up wasm runtime integration.
 - Verification:
   - Manual read-through of updated files for consistency and wording accuracy.
+
+### 13. Share counter sample app logic between headless and native examples
+- Status: [x]
+- Files:
+  - `examples/shared_counter.rs`
+  - `examples/counter.rs`
+  - `crates/alyx-native/examples/native_counter.rs`
+  - `crates/alyx-native/Cargo.toml`
+- Completion criteria:
+  - Counter sample behavior is defined in one shared module (`examples/shared_counter.rs`).
+  - Root `counter` example and `alyx-native` `native_counter` example both construct their app from shared logic.
+  - Native example runs with existing `winit-backend` feature without changing existing runtime semantics.
+- Verification:
+  - `cargo check --manifest-path work/alyx-core/Cargo.toml --example counter`
+  - `cargo check --manifest-path work/alyx-core/Cargo.toml --package alyx-native --example native_counter --features winit-backend`
