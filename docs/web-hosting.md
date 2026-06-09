@@ -23,7 +23,7 @@
 - `alyx-loader.js`
 
 Note:
-- `build-web` attempts to compile the shared `web_counter` example into `app.wasm` for browser delivery.
+- `build-web` attempts to compile the configured example into `app.wasm` for browser delivery (default: `web_counter`).
 - If wasm build support is unavailable in the environment, the command falls back to a placeholder `app.wasm` for compatibility.
 
 Deployment output must include:

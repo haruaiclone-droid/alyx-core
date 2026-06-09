@@ -251,5 +251,21 @@
   - `plan.md`
 - Completion criteria:
   - Remaining follow-up items are recorded in plan/checklist as explicit `[ ]` entries only when not finished.
+  - Verification:
+    - Manual review of completed/remaining entries in both files before final handoff
+
+### 20. Make CLI `build-web` runtime example selectable with safe default
+- Status: [x]
+- Files:
+  - `crates/alyx-cli/src/main.rs`
+  - `docs/implementation-notes.md`
+  - `docs/web-hosting.md`
+- Completion criteria:
+  - `alyx build-web [dir] [--example <name>]` parses input and uses `<name>` for `app.wasm` generation.
+  - Existing `alyx build-web` default behavior remains `dist` + `web_counter`.
+  - Build and serve smoke references remain valid with default behavior.
 - Verification:
-  - Manual review of completed/remaining entries in both files before final handoff
+  - `cargo test -p alyx-cli`
+  - Manual spot-check:
+    - `cargo run --package alyx-cli -- build-web tmp_cli_dist_explicit --example web_counter`
+    - `cargo run --package alyx-cli -- build-web tmp_cli_dist_default`

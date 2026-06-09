@@ -15,7 +15,7 @@ type CliResult<T> = Result<T, Box<dyn std::error::Error>>;
 
 const WASM_TARGET: &str = "wasm32-unknown-unknown";
 const APP_WASM_NAME: &str = "app.wasm";
-const RUNTIME_EXAMPLE: &str = "web_counter";
+const DEFAULT_WEB_EXAMPLE: &str = "web_counter";
 
 fn main() {
     let args = env::args().skip(1).collect::<Vec<_>>();
@@ -23,7 +23,10 @@ fn main() {
         Command::Help => {
             print_help();
         }
-        Command::BuildWeb { output_dir } => match run_build_web(output_dir) {
+        Command::BuildWeb {
+            output_dir,
+            example,
+        } => match run_build_web(output_dir, example) {
             Ok(path) => println!("wrote static export to {}", path.display()),
             Err(error) => {
                 eprintln!("build-web failed: {error}");
@@ -47,7 +50,10 @@ fn main() {
 
 enum Command {
     Help,
-    BuildWeb { output_dir: PathBuf },
+    BuildWeb {
+        output_dir: PathBuf,
+        example: String,
+    },
     Serve { port: u16, output_dir: PathBuf },
 }
 
@@ -58,10 +64,34 @@ fn parse_command(args: &[String]) -> Command {
     match args.first().map(String::as_str) {
         Some("-h") | Some("--help") | Some("help") => Command::Help,
         Some("build-web") => {
-            let output_dir = args
-                .get(1)
-                .map_or_else(|| PathBuf::from("dist"), PathBuf::from);
-            Command::BuildWeb { output_dir }
+            let mut output_dir = PathBuf::from("dist");
+            let mut example = DEFAULT_WEB_EXAMPLE.to_string();
+
+            let mut idx = 1;
+            while idx < args.len() {
+                match args.get(idx).map(String::as_str) {
+                    Some("--help") => return Command::Help,
+                    Some("--example") => {
+                        idx += 1;
+                        if let Some(value) = args.get(idx) {
+                            example = value.clone();
+                        } else {
+                            return Command::Help;
+                        }
+                    }
+                    Some(value) if !value.starts_with('-') && output_dir == PathBuf::from("dist") => {
+                        output_dir = PathBuf::from(value);
+                    }
+                    Some(value) => {
+                        eprintln!("build-web: unknown argument '{value}'");
+                        return Command::Help;
+                    }
+                    None => return Command::Help,
+                }
+                idx += 1;
+            }
+
+            Command::BuildWeb { output_dir, example }
         }
         Some("serve") => {
             let (port, output_dir) = match args.get(1).map(String::as_str) {
@@ -89,7 +119,7 @@ fn parse_command(args: &[String]) -> Command {
     }
 }
 
-fn run_build_web(output_dir: PathBuf) -> CliResult<PathBuf> {
+fn run_build_web(output_dir: PathBuf, example: String) -> CliResult<PathBuf> {
     let ui = cli_demo_ui();
     let output = compile(
         &ui,
@@ -99,13 +129,13 @@ fn run_build_web(output_dir: PathBuf) -> CliResult<PathBuf> {
         },
     );
     let written = build_web(&output.rp, &output_dir)?;
-    if let Err(error) = write_runtime_wasm(&output_dir) {
+    if let Err(error) = write_runtime_wasm(&output_dir, &example) {
         eprintln!("warning: failed to build browser runtime wasm: {error}");
     }
     Ok(written)
 }
 
-fn write_runtime_wasm(output_dir: &Path) -> CliResult<()> {
+fn write_runtime_wasm(output_dir: &Path, example: &str) -> CliResult<()> {
     const RUNTIME_PLACEHOLDER_WASM: [u8; 8] = [0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00];
     let workspace_root = Path::new(env!("CARGO_MANIFEST_DIR"))
         .parent()
@@ -118,7 +148,7 @@ fn write_runtime_wasm(output_dir: &Path) -> CliResult<()> {
         .arg("--target")
         .arg(WASM_TARGET)
         .arg("--example")
-        .arg(RUNTIME_EXAMPLE)
+        .arg(example)
         .arg("--manifest-path")
         .arg(workspace_root.join("Cargo.toml"))
         .status();
@@ -146,7 +176,7 @@ fn write_runtime_wasm(output_dir: &Path) -> CliResult<()> {
         .join(WASM_TARGET)
         .join("debug")
         .join("examples");
-    let built_wasm = built_wasm.join(format!("{RUNTIME_EXAMPLE}.wasm"));
+    let built_wasm = built_wasm.join(format!("{example}.wasm"));
 
     let copied = std::fs::copy(&built_wasm, &output_wasm);
     match copied {
@@ -213,7 +243,9 @@ fn print_help() {
     println!("Usage: alyx <command> [options]");
     println!("Commands:");
     println!("  help                   Show this help");
-    println!("  build-web [dir]        Build static bundle into [dir] (default: dist)");
+    println!("  build-web [dir] [--example <name>]");
+    println!("                       Build static bundle into [dir] (default: dist)");
+    println!("                       Uses Rust example `<name>` for app.wasm (default: {DEFAULT_WEB_EXAMPLE})");
     println!(
         "  serve [port] [dir]     Start static preview server from [dir] (default: 3000, dist)"
     );
@@ -234,7 +266,43 @@ mod tests {
         let command = parse_command(&[String::from("build-web"), String::from("tmp")]);
         assert!(matches!(
             command,
-            Command::BuildWeb { output_dir } if output_dir == std::path::Path::new("tmp")
+            Command::BuildWeb { output_dir, example } if output_dir == std::path::Path::new("tmp")
+                && example == DEFAULT_WEB_EXAMPLE
+        ));
+    }
+
+    #[test]
+    fn parse_build_web_example() {
+        let command = parse_command(&[
+            String::from("build-web"),
+            String::from("tmp"),
+            String::from("--example"),
+            String::from("my_example"),
+        ]);
+        assert!(matches!(
+            command,
+            Command::BuildWeb {
+                output_dir,
+                example,
+            } if output_dir == std::path::Path::new("tmp")
+                && example == "my_example"
+        ));
+    }
+
+    #[test]
+    fn parse_build_web_example_without_dir() {
+        let command = parse_command(&[
+            String::from("build-web"),
+            String::from("--example"),
+            String::from("my_example"),
+        ]);
+        assert!(matches!(
+            command,
+            Command::BuildWeb {
+                output_dir,
+                example,
+            } if output_dir == std::path::Path::new("dist")
+                && example == "my_example"
         ));
     }
 
