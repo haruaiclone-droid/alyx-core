@@ -127,7 +127,7 @@ The acceptance commands used in this PR scope are:
 - `cargo build --target wasm32-unknown-unknown --workspace`
 - `cargo run --package alyx-cli -- --help`
 - `cargo run --package alyx-cli --bin alyx -- --help`
-- `cargo run --package alyx-cli -- build-web dist`
+- `cargo run --package alyx-cli -- build-web dist` (defaults to `web_counter`)
 - `cargo check --package alyx-native --example native --features winit-backend`
 - `cargo check --package alyx-native --example native_pixels --features pixels-backend`
 - `cargo check --package alyx-native --example native_wgpu --features wgpu-backend`

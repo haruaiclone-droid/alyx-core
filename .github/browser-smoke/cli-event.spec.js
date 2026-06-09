@@ -31,11 +31,12 @@ test("CLI dist event bridge handles click and keyboard input", async ({ page, ba
   });
 
   await page.goto(baseURL);
-  await expect(page.locator("text=Alyx CLI Demo")).toBeVisible();
+  await expect(page.locator("text=count: 0")).toBeVisible();
+  await expect(page.locator("text=+")).toBeVisible();
+  await expect(page.locator("text=reset")).toBeVisible();
 
-  const noop = page.locator("text=noop");
-  await expect(noop).toBeVisible();
-  await noop.click();
+  const increment = page.locator("text=+");
+  await increment.click();
 
   await page.locator("body").click();
   await page.keyboard.press("Enter");

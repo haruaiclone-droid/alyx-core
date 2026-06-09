@@ -269,3 +269,17 @@
   - Manual spot-check:
     - `cargo run --package alyx-cli -- build-web tmp_cli_dist_explicit --example web_counter`
     - `cargo run --package alyx-cli -- build-web tmp_cli_dist_default`
+
+### 21. Keep browser smoke aligned with counter-based CLI runtime UI
+- Status: [ ]
+- Reason: 未実行: このレビューターンではローカル再実行は行わず、CIの次回実行を待機
+- Files:
+  - `.github/browser-smoke/cli-event.spec.js`
+  - `crates/alyx-cli/src/main.rs`
+- Completion criteria:
+  - Playwright event bridge spec does not assert removed demo UI text (`Alyx CLI Demo`, `noop`).
+  - Counter UI (`count`, `+`, `reset`) is validated and click/keydown payloads are asserted.
+  - Unknown `--example` path remains rejected by CLI runtime entrypoint.
+- Verification:
+  - `rg -n "Alyx CLI Demo|noop|count:|\\+" .github/browser-smoke/cli-event.spec.js`
+  - `cargo test -p alyx-cli run_build_web_rejects_unknown_example`

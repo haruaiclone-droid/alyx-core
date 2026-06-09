@@ -8,7 +8,8 @@
 - `serve_http_with_runtime` for runtime-backed local preview with event bridge
 - CLI flow is exposed from the `alyx` binary in the `alyx-cli` crate:
   - `cargo run --package alyx-cli -- --help`
-  - `cargo run --package alyx-cli -- build-web dist`
+  - `cargo run --package alyx-cli -- build-web dist` (defaults to `web_counter`)
+  - `cargo run --package alyx-cli -- build-web dist --example counter`
   - `cargo run --package alyx-cli -- serve 3000 dist`
   - `cargo run --package alyx-cli -- serve dist`
 

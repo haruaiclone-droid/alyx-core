@@ -2,13 +2,13 @@ use std::env;
 use std::path::{Path, PathBuf};
 use std::process::Command as ProcessCommand;
 
+#[path = "../../../examples/shared_counter.rs"]
+mod shared_counter;
+
 use alyx_core::{
-    compiler::compile,
     executor::MemoryRenderer,
     host::{HostOptions, build_web, serve_http_with_runtime},
     ir::Size,
-    runtime::{App, Command as RuntimeCommand},
-    widgets::{IntoIr, Widget, button, column, text},
 };
 
 type CliResult<T> = Result<T, Box<dyn std::error::Error>>;
@@ -120,20 +120,38 @@ fn parse_command(args: &[String]) -> Command {
 }
 
 fn run_build_web(output_dir: PathBuf, example: String) -> CliResult<PathBuf> {
-    let ui = cli_demo_ui();
-    let output = compile(
-        &ui,
-        Size {
-            width: 320.0,
-            height: 120.0,
-        },
-    );
+    let output = match example.as_str() {
+        "web_counter" | "counter" => build_counter_runtime_frame(),
+        _ => {
+            return Err(std::io::Error::other(format!(
+                "unknown example '{example}', expected --example counter or --example web_counter"
+            ))
+            .into());
+        }
+    };
     let written = build_web(&output.rp, &output_dir)?;
     if let Err(error) = write_runtime_wasm(&output_dir, &example) {
         eprintln!("warning: failed to build browser runtime wasm: {error}");
     }
     Ok(written)
 }
+
+fn build_counter_runtime_frame() -> alyx_core::plan::CompilerOutput<shared_counter::Msg> {
+    use alyx_core::runtime::HeadlessRuntime;
+    let mut runtime = HeadlessRuntime::new(
+        shared_counter::CounterApp,
+        Size {
+            width: shared_counter::VIEW_WIDTH,
+            height: shared_counter::VIEW_HEIGHT,
+        },
+    );
+    let mut renderer = MemoryRenderer::default();
+    runtime.step(&mut renderer);
+    runtime
+        .compile_frame()
+        .expect("counter runtime should compile")
+}
+
 
 fn write_runtime_wasm(output_dir: &Path, example: &str) -> CliResult<()> {
     const RUNTIME_PLACEHOLDER_WASM: [u8; 8] = [0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00];
@@ -188,10 +206,10 @@ fn write_runtime_wasm(output_dir: &Path, example: &str) -> CliResult<()> {
 
 fn run_serve(options: HostOptions) -> CliResult<()> {
     let mut runtime = HostRuntime::new(
-        CliDemoApp,
+        shared_counter::CounterApp,
         Size {
-            width: 320.0,
-            height: 120.0,
+            width: shared_counter::VIEW_WIDTH,
+            height: shared_counter::VIEW_HEIGHT,
         },
     );
     let mut renderer = MemoryRenderer::default();
@@ -204,39 +222,7 @@ fn run_serve(options: HostOptions) -> CliResult<()> {
     Ok(())
 }
 
-struct CliDemoApp;
-
-type HostRuntime = alyx_core::runtime::HeadlessRuntime<CliDemoApp>;
-
-impl App for CliDemoApp {
-    type Message = ();
-    type State = ();
-
-    fn initial_state(&self) -> Self::State {}
-
-    fn update(
-        &self,
-        _state: &mut Self::State,
-        _message: Self::Message,
-    ) -> Vec<RuntimeCommand<Self::Message>> {
-        vec![RuntimeCommand::None]
-    }
-
-    fn view(&self, _state: &Self::State) -> alyx_core::ir::IrNode<Self::Message> {
-        cli_demo_ui()
-    }
-}
-
-fn cli_demo_ui() -> alyx_core::ir::IrNode<()> {
-    column([
-        Widget::Text(text("Alyx CLI Demo").size(160.0, 24.0)),
-        button::<()>("noop").on_click(()),
-        Widget::Text(text("static export demo").size(140.0, 18.0)),
-    ])
-    .padding(8.0, 10.0, 8.0, 10.0)
-    .gap(10.0)
-    .into_ir()
-}
+type HostRuntime = alyx_core::runtime::HeadlessRuntime<shared_counter::CounterApp>;
 
 fn print_help() {
     println!("Alyx CLI");
@@ -245,7 +231,7 @@ fn print_help() {
     println!("  help                   Show this help");
     println!("  build-web [dir] [--example <name>]");
     println!("                       Build static bundle into [dir] (default: dist)");
-    println!("                       Uses Rust example `<name>` for app.wasm (default: {DEFAULT_WEB_EXAMPLE})");
+    println!("                       Uses Rust example `<name>` for app.wasm (supported: counter, web_counter)");
     println!(
         "  serve [port] [dir]     Start static preview server from [dir] (default: 3000, dist)"
     );
@@ -344,5 +330,12 @@ mod tests {
     fn help_for_unknown_command() {
         let command = parse_command(&[String::from("unexpected")]);
         assert!(matches!(command, Command::Help));
+    }
+
+    #[test]
+    fn run_build_web_rejects_unknown_example() {
+        let result = run_build_web(std::path::PathBuf::from("tmp"), String::from("my_custom_example"));
+        assert!(result.is_err());
+        assert!(result.unwrap_err().to_string().contains("unknown example"));
     }
 }
