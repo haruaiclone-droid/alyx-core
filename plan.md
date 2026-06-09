@@ -271,8 +271,8 @@
     - `cargo run --package alyx-cli -- build-web tmp_cli_dist_default`
 
 ### 21. Keep browser smoke aligned with counter-based CLI runtime UI
-- Status: [ ]
-- Reason: 未実行: このレビューターンではローカル再実行は行わず、CIの次回実行を待機
+- Status: [x]
+- Reason: ローカル再実行により `cargo test -p alyx-cli run_build_web_rejects_unknown_example`、`build-web`、`serve` を確認済み。
 - Files:
   - `.github/browser-smoke/cli-event.spec.js`
   - `crates/alyx-cli/src/main.rs`
