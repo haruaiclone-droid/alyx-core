@@ -15,7 +15,7 @@ use alyx_core::{ir::*, runtime::App, widgets::*};
 
 let root = column::<()>([
     Widget::Text(text("Alyx").size(120.0, 24.0)),
-    button::<()>("Save"),
+    button::<()>("Save").on_click(()),
 ]).into_ir();
 ```
 

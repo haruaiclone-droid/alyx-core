@@ -131,11 +131,10 @@ where
     if request.is_empty() {
         return Ok(());
     }
-    let (method, event_path) =
-        parse_request_line(&request).unwrap_or(("GET", DEFAULT_INDEX.to_string()));
+    let (method, _) = parse_request_line(&request).unwrap_or(("GET", DEFAULT_INDEX.to_string()));
     let path = parse_request_path(&request).unwrap_or_else(|| DEFAULT_INDEX.to_string());
 
-    if event_path == "/__alyx_event" && method == "POST" {
+    if path == "/__alyx_event" && method == "POST" {
         if let Ok(raw) = std::str::from_utf8(&body)
             && let Some(event) = parse_browser_event(raw)
         {
@@ -518,6 +517,12 @@ mod tests {
     fn parse_request_path_defaults_index() {
         let path = parse_request_path("GET / HTTP/1.1\r\n").unwrap();
         assert_eq!(path, DEFAULT_INDEX);
+    }
+
+    #[test]
+    fn parse_request_path_strips_query() {
+        let path = parse_request_path("POST /__alyx_event?x=1 HTTP/1.1\r\n").unwrap();
+        assert_eq!(path, "/__alyx_event");
     }
 
     #[test]

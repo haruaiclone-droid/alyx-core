@@ -224,3 +224,32 @@
 - Verification:
   - `cargo test -p alyx-widgets --test compatibility_api`
   - `cargo test -p alyx-widgets`
+
+### 17. Make runtime event endpoint matching path-safe under query strings
+- Status: [x]
+- Files:
+  - `crates/alyx-host/src/lib.rs`
+- Completion criteria:
+  - Runtime server routes `"/__alyx_event?*"` the same as `"/__alyx_event"` for POST events.
+  - Query-string path handling has unit test coverage.
+- Verification:
+  - `cargo test -p alyx-host --lib parse_request_path_strips_query`
+
+### 18. Fix getting-started snippet to use builder completion
+- Status: [x]
+- Files:
+  - `docs/getting-started.md`
+- Completion criteria:
+  - The example demonstrates a complete `button(...).on_click(...)` usage path.
+- Verification:
+  - `rg -n "button::<\\(\\)>\\(\"Save\"\\)" docs/getting-started.md`
+
+### 19. Maintain checklist truthfulness as implementation progresses
+- Status: [x]
+- Files:
+  - `docs/completion-checklist.md`
+  - `plan.md`
+- Completion criteria:
+  - Remaining follow-up items are recorded in plan/checklist as explicit `[ ]` entries only when not finished.
+- Verification:
+  - Manual review of completed/remaining entries in both files before final handoff

@@ -14,6 +14,7 @@
 - [x] Native renderer parity hardening baseline (`NativeSceneExport` coverage) across adapter examples.
 - [x] Native example smoke/build coverage now validates runtime-path parity under `winit` / `pixels` / `wgpu` feature gates.
 - [x] Deep compatibility matrix for historical API patterns captured in test artifacts and docs.
+- [x] Runtime event endpoint routing now normalizes request paths before dispatch, including query-string variants.
 
 ## Evidence used in this review pass
 - Core implementation evidence: `crates/alyx-*`
