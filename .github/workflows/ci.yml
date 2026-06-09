@@ -99,9 +99,51 @@ PY
               -H "Content-Type: application/json" \
               -d '{"type":"keydown","key":"Enter"}' \
               "http://127.0.0.1:38888/__alyx_event" >/tmp/alyx-event-key.json
-            if ! test -s /tmp/alyx-event-click.json && ! test -s /tmp/alyx-event-key.json; then
+            if [ ! -s /tmp/alyx-event-click.json ] || [ ! -s /tmp/alyx-event-key.json ]; then
               echo "event endpoint smoke produced no payload"
               exit 1
             fi
             echo "CLI smoke: runtime event endpoint reachable"
+          )
+
+  browser-matrix:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        browser:
+          - chromium
+          - firefox
+          - webkit
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+      - name: Build dist bundle for browser smoke
+        run: cargo run --package alyx-cli -- build-web dist
+      - name: Install Node + Playwright runner
+        run: |
+          npm install --no-save @playwright/test@1.47.0 playwright@1.47.0
+          npx playwright install --with-deps ${{ matrix.browser }}
+      - name: CLI serve + browser event smoke
+        run: |
+          set -euo pipefail
+          port=38888
+          max_wait_seconds=12
+          (
+            cargo run --package alyx-cli -- serve "$port" dist > /tmp/alyx-serve.log 2>&1 &
+            server_pid=$!
+            trap 'kill $server_pid || true' EXIT
+            for attempt in $(seq 1 "$max_wait_seconds"); do
+              if curl -fsS "http://127.0.0.1:$port/" > /tmp/alyx-root.html 2>/dev/null; then
+                break
+              fi
+              if [ "$attempt" -eq "$max_wait_seconds" ]; then
+                cat /tmp/alyx-serve.log >&2 || true
+                exit 1
+              fi
+              sleep 1
+            done
+            ALYX_BASE_URL="http://127.0.0.1:$port" \
+              npx playwright test --config playwright.browser.config.js --project ${{ matrix.browser }} .github/browser-smoke/cli-event.spec.js
           )

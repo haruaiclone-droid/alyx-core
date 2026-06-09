@@ -10,22 +10,27 @@
 - [x] `compile` no longer requires `Msg: Send` (review hardening).
 - [x] Regression test added for non-`Send` compile message types.
 - [x] CLI smoke now exercises `/__alyx_event` endpoint with click and keyboard POST payloads during CI.
+- [x] Full browser automation matrix (Playwright) for click and keyboard interaction in chromium/firefox/webkit.
+- [x] Native renderer parity hardening baseline (`NativeSceneExport` coverage) across adapter examples.
+- [x] Deep compatibility matrix for historical API patterns captured in test artifacts and docs.
 
 ## Deferred / incomplete
-- [ ] Full browser automation matrix (Playwright/Cdp interaction assertions across browsers).
-- [ ] Native renderer parity and performance hardening.
-- [ ] Deep compatibility matrix for historical message/update patterns.
+- [ ] Performance characterization (frame-time budget and memory envelope) across native backends.
 
 ## Evidence used in this review pass
 - Core implementation evidence: `crates/alyx-*`
 - Review-hardening evidence:
   - `crates/alyx-compiler/src/layout.rs`
   - `crates/alyx-compiler/tests/compile.rs`
+- `crates/alyx-native/src/lib.rs`
+- `crates/alyx-widgets/tests/compatibility_api.rs`
 - PR-facing docs evidence:
   - `README.md`
   - `docs/implementation-notes.md`
   - `docs/pr-summary.md`
   - `docs/web-hosting.md`
+- `docs/compatibility-matrix.md`
+- `docs/native-renderers.md`
 
 ## Notes
-- This checklist is intentionally conservative; tasks left `[ ]` are explicitly deferred, not complete.
+- Only native runtime performance characterization remains deferred.

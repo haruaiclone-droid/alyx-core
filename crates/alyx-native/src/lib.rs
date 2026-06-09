@@ -538,6 +538,25 @@ mod tests {
     }
 
     #[test]
+    fn native_scene_export_preserves_plan_node_distribution() {
+        let mut runtime = HeadlessRuntime::new(
+            TestApp,
+            Size {
+                width: 140.0,
+                height: 80.0,
+            },
+        );
+        let mut renderer = MemoryRenderer::default();
+        runtime.step(&mut renderer);
+        let output = runtime.compile_frame().expect("compiled");
+        let summary = NativeSceneExport::from_plan(&output.rp);
+
+        assert_eq!(summary.total_nodes, 1);
+        assert_eq!(summary.text_nodes, 1);
+        assert_eq!(summary.image_nodes, 0);
+    }
+
+    #[test]
     fn pump_native_events_uses_focused_target_for_keyboard_events() {
         let mut runtime = HeadlessRuntime::new(
             TestApp,

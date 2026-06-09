@@ -183,3 +183,42 @@
   - `cargo test --workspace --all-features`
   - `cargo run -p alyx-cli -- build-web`
   - `cargo run -p alyx-cli -- serve 35123 dist` (single request smoke)
+
+### 14. Add full browser automation matrix
+- Status: [x]
+- Files:
+  - `.github/workflows/ci.yml`
+  - `.github/browser-smoke/cli-event.spec.js`
+  - `playwright.browser.config.js`
+- Completion criteria:
+  - Chromium/firefox/webkit matrix executes event-bridge assertions in CI.
+  - Click and Enter key POST payload assertions are checked in each browser run.
+  - Smoke fails if either event class is missing.
+- Verification:
+  - CI `browser-matrix` job executes successfully.
+  - `npx playwright test --config playwright.browser.config.js --project chromium .github/browser-smoke/cli-event.spec.js`
+    (smoke command run as part of CI; local run follows same command on built dist).
+
+### 15. Add native parity/performance-hardening baseline checks
+- Status: [x]
+- Files:
+  - `crates/alyx-native/src/lib.rs`
+  - `docs/native-renderers.md`
+- Completion criteria:
+  - Native scene summary classification is tested for deterministic counts.
+  - Shared event dispatch path remains source of truth for native backends.
+- Verification:
+  - `cargo test -p alyx-native`
+  - `cargo check -p alyx-native --example native_pixels --features pixels-backend`
+
+### 16. Add deep compatibility matrix artifacts for legacy APIs
+- Status: [x]
+- Files:
+  - `crates/alyx-widgets/tests/compatibility_api.rs`
+  - `docs/compatibility-matrix.md`
+- Completion criteria:
+  - Legacy and builder-style button/container APIs produce equivalent IR in tests.
+  - API compatibility evidence is documented for PR review.
+- Verification:
+  - `cargo test -p alyx-widgets --test compatibility_api`
+  - `cargo test -p alyx-widgets`

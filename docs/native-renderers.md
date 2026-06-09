@@ -57,3 +57,9 @@ This example uses `pump_native_events` with `WinitEventLoop` and exits when the 
 - real native event source for prototyping native desktop flow
 - no hard dependency on `winit` unless the feature is enabled
 - stable bridge path for native render backends (`pixels`, `wgpu`) and event/ID dispatch
+
+## Compatibility and parity baseline
+
+- Both native backends consume `NativeSceneExport` summaries and shared `NativeEventState`.
+- `native_scene_export_preserves_plan_node_distribution` in `crates/alyx-native/src/lib.rs` verifies scene summaries stay deterministic.
+- See `docs/compatibility-matrix.md` for API/runtime parity coverage.

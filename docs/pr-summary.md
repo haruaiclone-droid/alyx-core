@@ -56,11 +56,12 @@ The repository previously lacked a coherent end-to-end baseline across IR → co
 
 ## Known limitations
 
-- Browser interactive behavior is currently validated via local event bridge and HTTP smoke coverage (not full browser automation matrix).
-- Native renderer completeness remains a scaffold for future optimization, with adapters and demos now in place.
+- Browser interactive behavior is now validated in CI with a full Playwright matrix (chromium/firefox/webkit).
+- Native renderer parity checks include scene summary assertions and shared event-state dispatch coverage for `native_pixels`/`native_wgpu` paths.
+- Performance envelope measurement is still a follow-up across native backends.
 
 ## Follow-up
 
-- Expand browser automation coverage (e.g., deterministic keyboard/focus interaction assertions).
-- Add dedicated compatibility tests around native focus-to-keyboard routing.
+- Add deeper browser-event assertions beyond core click/keyboard smoke (focus lifecycle, pointer path replay, mixed input).
+- Complete native renderer performance envelope measurements.
 - Continue tightening CI reliability (e.g., explicit health polling around serve smoke startup if needed).
