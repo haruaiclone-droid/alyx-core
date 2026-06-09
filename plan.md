@@ -209,7 +209,9 @@
   - Shared event dispatch path remains source of truth for native backends.
 - Verification:
   - `cargo test -p alyx-native`
+  - `cargo check -p alyx-native --example native --features winit-backend`
   - `cargo check -p alyx-native --example native_pixels --features pixels-backend`
+  - `cargo check -p alyx-native --example native_wgpu --features wgpu-backend`
 
 ### 16. Add deep compatibility matrix artifacts for legacy APIs
 - Status: [x]

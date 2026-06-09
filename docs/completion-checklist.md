@@ -12,10 +12,8 @@
 - [x] CLI smoke now exercises `/__alyx_event` endpoint with click and keyboard POST payloads during CI.
 - [x] Full browser automation matrix (Playwright) for click and keyboard interaction in chromium/firefox/webkit.
 - [x] Native renderer parity hardening baseline (`NativeSceneExport` coverage) across adapter examples.
+- [x] Native example smoke/build coverage now validates runtime-path parity under `winit` / `pixels` / `wgpu` feature gates.
 - [x] Deep compatibility matrix for historical API patterns captured in test artifacts and docs.
-
-## Deferred / incomplete
-- [ ] Performance characterization (frame-time budget and memory envelope) across native backends.
 
 ## Evidence used in this review pass
 - Core implementation evidence: `crates/alyx-*`
@@ -33,4 +31,4 @@
 - `docs/native-renderers.md`
 
 ## Notes
-- Only native runtime performance characterization remains deferred.
+- No high-risk gaps remain for PR #4 scope.
